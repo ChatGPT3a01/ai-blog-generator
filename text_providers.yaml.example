@@ -1,0 +1,27 @@
+# 文字生成供應商設定
+# 複製此檔案為 text_providers.yaml 並填寫你的設定
+
+# 目前啟用的供應商（填寫下方 providers 中的名稱）
+active_provider: gemini
+
+# 供應商列表
+providers:
+  # Google Gemini（推薦，免費額度較多）
+  gemini:
+    type: google_gemini
+    api_key: AIzaxxxxxxxxxxxxxxxxxxxxxxxxx
+    model: gemini-2.5-flash  # 可選: gemini-2.5-flash, gemini-2.5-pro, gemini-3.0-flash, gemini-3.0-pro
+
+  # OpenAI 官方 API
+  openai:
+    type: openai_compatible
+    api_key: sk-xxxxxxxxxxxxxxxxxxxx
+    base_url: https://api.openai.com/v1
+    model: gpt-4o  # 可選: gpt-4o, gpt-4.1, gpt-4-turbo, gpt-5.1
+
+  # 第三方 OpenAI 相容介面範例（如 OneAPI、New API 等）
+  third_party:
+    type: openai_compatible
+    api_key: sk-xxxxxxxxxxxxxxxxxxxx
+    base_url: https://your-api-endpoint.com
+    model: gpt-4o

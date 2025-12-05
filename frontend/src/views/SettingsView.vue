@@ -1,0 +1,214 @@
+<template>
+  <div class="container">
+    <div class="page-header">
+      <h1 class="page-title">系統設定</h1>
+      <p class="page-subtitle">設定文字生成和圖片生成的 API 服務</p>
+    </div>
+
+    <div v-if="loading" class="loading-container">
+      <div class="spinner"></div>
+      <p>載入設定中...</p>
+    </div>
+
+    <div v-else class="settings-container">
+      <!-- 文字生成設定 -->
+      <div class="card">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">文字生成設定</h2>
+            <p class="section-desc">用於生成小紅書圖文大綱</p>
+          </div>
+          <button class="btn btn-small" @click="openAddTextModal">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            新增
+          </button>
+        </div>
+
+        <!-- 供應商清單表格 -->
+        <ProviderTable
+          :providers="textConfig.providers"
+          :activeProvider="textConfig.active_provider"
+          @activate="activateTextProvider"
+          @edit="openEditTextModal"
+          @delete="deleteTextProvider"
+          @test="testTextProviderInList"
+        />
+      </div>
+
+      <!-- 圖片生成設定 -->
+      <div class="card">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">圖片生成設定</h2>
+            <p class="section-desc">用於生成小紅書配圖</p>
+          </div>
+          <button class="btn btn-small" @click="openAddImageModal">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            新增
+          </button>
+        </div>
+
+        <!-- 供應商清單表格 -->
+        <ProviderTable
+          :providers="imageConfig.providers"
+          :activeProvider="imageConfig.active_provider"
+          @activate="activateImageProvider"
+          @edit="openEditImageModal"
+          @delete="deleteImageProvider"
+          @test="testImageProviderInList"
+        />
+      </div>
+    </div>
+
+    <!-- 文字供應商彈窗 -->
+    <ProviderModal
+      :visible="showTextModal"
+      :isEditing="!!editingTextProvider"
+      :formData="textForm"
+      :testing="testingText"
+      :typeOptions="textTypeOptions"
+      providerCategory="text"
+      @close="closeTextModal"
+      @save="saveTextProvider"
+      @test="testTextConnection"
+      @update:formData="updateTextForm"
+    />
+
+    <!-- 圖片供應商彈窗 -->
+    <ImageProviderModal
+      :visible="showImageModal"
+      :isEditing="!!editingImageProvider"
+      :formData="imageForm"
+      :testing="testingImage"
+      :typeOptions="imageTypeOptions"
+      @close="closeImageModal"
+      @save="saveImageProvider"
+      @test="testImageConnection"
+      @update:formData="updateImageForm"
+    />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { onMounted } from 'vue'
+import ProviderTable from '../components/settings/ProviderTable.vue'
+import ProviderModal from '../components/settings/ProviderModal.vue'
+import ImageProviderModal from '../components/settings/ImageProviderModal.vue'
+import {
+  useProviderForm,
+  textTypeOptions,
+  imageTypeOptions
+} from '../composables/useProviderForm'
+
+/**
+ * 系統設定頁面
+ *
+ * 功能：
+ * - 管理文字生成供應商設定
+ * - 管理圖片生成供應商設定
+ * - 測試 API 連線
+ */
+
+// 使用 composable 管理表單狀態和邏輯
+const {
+  // 狀態
+  loading,
+  testingText,
+  testingImage,
+
+  // 設定資料
+  textConfig,
+  imageConfig,
+
+  // 文字供應商彈窗
+  showTextModal,
+  editingTextProvider,
+  textForm,
+
+  // 圖片供應商彈窗
+  showImageModal,
+  editingImageProvider,
+  imageForm,
+
+  // 方法
+  loadConfig,
+
+  // 文字供應商方法
+  activateTextProvider,
+  openAddTextModal,
+  openEditTextModal,
+  closeTextModal,
+  saveTextProvider,
+  deleteTextProvider,
+  testTextConnection,
+  testTextProviderInList,
+  updateTextForm,
+
+  // 圖片供應商方法
+  activateImageProvider,
+  openAddImageModal,
+  openEditImageModal,
+  closeImageModal,
+  saveImageProvider,
+  deleteImageProvider,
+  testImageConnection,
+  testImageProviderInList,
+  updateImageForm
+} = useProviderForm()
+
+onMounted(() => {
+  loadConfig()
+})
+</script>
+
+<style scoped>
+.settings-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #1a1a1a;
+}
+
+.section-desc {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+}
+
+/* 按鈕樣式 */
+.btn-small {
+  padding: 6px 12px;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 載入狀態 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  color: #666;
+}
+</style>

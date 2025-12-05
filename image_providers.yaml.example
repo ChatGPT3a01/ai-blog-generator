@@ -1,0 +1,41 @@
+# 圖片生成供應商設定
+# 複製此檔案為 image_providers.yaml 並填寫你的設定
+
+# 目前啟用的供應商（填寫下方 providers 中的名稱）
+active_provider: gemini
+
+# 供應商列表
+providers:
+  # Google Gemini 圖片生成（推薦，免費額度較多）
+  gemini:
+    type: google_genai
+    api_key: AIzaxxxxxxxxxxxxxxxxxxxxxxxxx
+    model: gemini-2.0-flash-exp-image-generation  # Gemini 圖片生成模型
+    default_aspect_ratio: "16:9"  # 部落格配圖比例
+    high_concurrency: false  # 是否啟用高並行，GCP 試用帳號不建議啟用
+
+  # Google Vertex AI（需要設定 GCP 憑證）
+  vertex:
+    type: google_genai
+    api_key: your-vertex-api-key
+    model: gemini-2.0-flash-exp-image-generation
+    default_aspect_ratio: "16:9"
+    high_concurrency: true  # 付費帳號可以啟用高並行
+
+  # OpenAI DALL-E
+  dalle:
+    type: openai_compatible
+    api_key: sk-xxxxxxxxxxxxxxxxxxxx
+    base_url: https://api.openai.com/v1
+    model: dall-e-3
+    default_size: "1792x1024"  # 16:9 比例
+    quality: standard
+
+  # OpenAI 相容介面（如其他第三方圖片生成 API）
+  openai_image:
+    type: image_api
+    api_key: sk-xxxxxxxxxxxxxxxxxxxx
+    base_url: https://your-api-endpoint.com
+    model: your-model-name
+    default_aspect_ratio: "16:9"
+    high_concurrency: false
