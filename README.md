@@ -59,7 +59,7 @@
 - Python 3.11+
 - Node.js 18+
 - pnpm（前端套件管理）
-- uv（Python 套件管理，推薦）或 pip
+- pip（Python 套件管理）
 
 ---
 
@@ -120,16 +120,14 @@ providers:
 
 ### 步驟 3：安裝後端相依套件
 
-使用 uv（推薦）：
+```bash
+pip install -r requirements.txt
+```
+
+或使用 uv（進階用戶）：
 
 ```bash
 uv sync
-```
-
-或使用 pip：
-
-```bash
-pip install -r requirements.txt
 ```
 
 ### 步驟 4：安裝前端相依套件
@@ -190,7 +188,7 @@ cd ..
 **步驟 2：啟動服務**
 
 ```bash
-uv run python -m backend.app
+python -m backend.app
 ```
 
 打開瀏覽器 http://localhost:12398 即可使用。
@@ -202,7 +200,7 @@ uv run python -m backend.app
 **啟動後端：**
 
 ```bash
-uv run python -m backend.app
+python -m backend.app
 ```
 
 後端會在 http://localhost:12398 啟動

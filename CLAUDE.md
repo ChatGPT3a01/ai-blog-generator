@@ -16,13 +16,13 @@ AI 圖文生成器 - 以 GitHub Copilot 建置的部落格圖文生成工具，�
 
 ```bash
 # 安裝相依套件
-uv sync
+pip install -r requirements.txt
 
 # 啟動後端開發伺服器 (port 12398)
-uv run python -m backend.app
+python -m backend.app
 
 # 執行測試
-uv run pytest tests/
+pytest tests/
 ```
 
 ### 前端 (Vue 3 + Vite)
