@@ -4,6 +4,45 @@
 
 ---
 
+## 如何用 AI 建立此專案
+
+如果你想用 AI（如 GitHub Copilot、Claude、ChatGPT）從零開始建立此專案，可以參考以下提示詞：
+
+### 提示詞範例
+
+```
+請幫我建立一個「AI 部落格圖文生成器」專案，需求如下：
+
+【功能需求】
+1. 使用者輸入部落格主題，AI 自動生成文章大綱（包含封面、前言、內容段落、結論）
+2. 根據大綱為每個段落生成 16:9 橫式配圖
+3. 支援編輯大綱內容、調整段落順序、新增/刪除段落
+4. 可單獨重新生成不滿意的圖片
+5. 支援匯出 Markdown 和 HTML 格式
+6. 自動儲存歷史記錄
+
+【技術架構】
+- 後端：Python Flask REST API
+- 前端：Vue 3 + Vite + Pinia 狀態管理
+- AI 服務：支援 Google Gemini 和 OpenAI API（可切換）
+- 設定檔：使用 YAML 格式管理多個 AI 服務商
+
+【API 設計】
+- POST /api/outline/generate - 生成大綱
+- POST /api/images/generate - 生成圖片（SSE 串流回傳進度）
+- POST /api/export/markdown - 匯出 Markdown
+- POST /api/export/html - 匯出 HTML
+- GET/POST /api/history - 歷史記錄管理
+
+【其他需求】
+- 圖片生成採用「封面優先」策略，先生成封面再並發生成其他頁面
+- 使用封面圖作為風格參考，確保整篇文章圖片風格一致
+- 支援 Docker 部署
+- 提供設定檔範例（.example 檔案）
+```
+
+---
+
 ## 功能特色
 
 - **一鍵生成**：輸入主題，AI 自動生成完整部落格文章
@@ -373,45 +412,6 @@ Content-Type: application/json
 
 - 可自由使用、修改、散布
 - 需保留原始授權聲明
-
----
-
-## 如何用 AI 建立此專案
-
-如果你想用 AI（如 GitHub Copilot、Claude、ChatGPT）從零開始建立此專案，可以參考以下提示詞：
-
-### 提示詞範例
-
-```
-請幫我建立一個「AI 部落格圖文生成器」專案，需求如下：
-
-【功能需求】
-1. 使用者輸入部落格主題，AI 自動生成文章大綱（包含封面、前言、內容段落、結論）
-2. 根據大綱為每個段落生成 16:9 橫式配圖
-3. 支援編輯大綱內容、調整段落順序、新增/刪除段落
-4. 可單獨重新生成不滿意的圖片
-5. 支援匯出 Markdown 和 HTML 格式
-6. 自動儲存歷史記錄
-
-【技術架構】
-- 後端：Python Flask REST API
-- 前端：Vue 3 + Vite + Pinia 狀態管理
-- AI 服務：支援 Google Gemini 和 OpenAI API（可切換）
-- 設定檔：使用 YAML 格式管理多個 AI 服務商
-
-【API 設計】
-- POST /api/outline/generate - 生成大綱
-- POST /api/images/generate - 生成圖片（SSE 串流回傳進度）
-- POST /api/export/markdown - 匯出 Markdown
-- POST /api/export/html - 匯出 HTML
-- GET/POST /api/history - 歷史記錄管理
-
-【其他需求】
-- 圖片生成採用「封面優先」策略，先生成封面再並發生成其他頁面
-- 使用封面圖作為風格參考，確保整篇文章圖片風格一致
-- 支援 Docker 部署
-- 提供設定檔範例（.example 檔案）
-```
 
 ---
 
