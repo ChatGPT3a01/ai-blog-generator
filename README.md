@@ -105,7 +105,60 @@ cd ..
 
 ## 啟動服務
 
-### 方式一：開發模式（前後端分離）
+### 方式一：Docker 部署（最簡單，推薦）
+
+只需一行指令：
+
+```bash
+docker-compose up -d
+```
+
+打開瀏覽器 http://localhost:12398 即可使用。
+
+> **注意**：首次執行會自動建構映像，需要等待幾分鐘。
+
+**停止服務：**
+
+```bash
+docker-compose down
+```
+
+**手動建構（可選）：**
+
+```bash
+# 建構映像
+docker build -t ai-blog-generator .
+
+# 執行容器
+docker run -d -p 12398:12398 \
+  -v ./history:/app/history \
+  -v ./output:/app/output \
+  ai-blog-generator
+```
+
+### 方式二：正式環境模式
+
+適合沒有安裝 Docker 的使用者。
+
+**步驟 1：建構前端**
+
+```bash
+cd frontend
+pnpm build
+cd ..
+```
+
+**步驟 2：啟動服務**
+
+```bash
+uv run python -m backend.app
+```
+
+打開瀏覽器 http://localhost:12398 即可使用。
+
+### 方式三：開發模式（前後端分離）
+
+適合需要修改程式碼的開發者。
 
 **啟動後端：**
 
@@ -123,47 +176,6 @@ pnpm dev
 ```
 
 前端會在 http://localhost:5173 啟動
-
-### 方式二：正式環境模式
-
-先建構前端：
-
-```bash
-cd frontend
-pnpm build
-cd ..
-```
-
-然後只需啟動後端，Flask 會自動提供前端頁面：
-
-```bash
-uv run python -m backend.app
-```
-
-瀏覽 http://localhost:12398
-
-### 方式三：Docker 部署
-
-先建構 Docker 映像：
-
-```bash
-docker build -t ai-blog-generator .
-```
-
-然後執行：
-
-```bash
-docker run -d -p 12398:12398 \
-  -v ./history:/app/history \
-  -v ./output:/app/output \
-  ai-blog-generator
-```
-
-或使用 Docker Compose：
-
-```bash
-docker-compose up -d
-```
 
 ---
 
