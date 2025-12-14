@@ -414,8 +414,17 @@ Content-Type: application/json
 
 ---
 
-## 致謝
+## 作者資訊
+
+**阿亮老師**
+
+- Facebook：https://www.facebook.com/iddmail
+- YouTube：https://www.youtube.com/@Liang-yt02
+
+---
+
+## 使用技術
 
 - [GitHub Copilot](https://github.com/features/copilot) - AI 輔助開發
-- [Google Gemini](https://ai.google.dev/) - AI 服務
+- [Google Gemini](https://ai.google.dev/) - AI 圖文生成
 - [OpenAI](https://openai.com/) - AI 服務
