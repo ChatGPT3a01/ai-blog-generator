@@ -6,21 +6,21 @@ active_provider: gemini
 
 # 供應商列表
 providers:
-  # Google Gemini 圖片生成（推薦，免費額度較多）
+  # Google Gemini 圖片生成（推薦）
   gemini:
     type: google_genai
     api_key: AIzaxxxxxxxxxxxxxxxxxxxxxxxxx
-    model: gemini-2.0-flash-exp-image-generation  # Gemini 圖片生成模型
+    model: gemini-3.0-flash-preview-image  # 最新 3.0 版本，支援 4096px
     default_aspect_ratio: "16:9"  # 部落格配圖比例
-    high_concurrency: false  # 是否啟用高並行，GCP 試用帳號不建議啟用
+    high_concurrency: false  # 是否啟用高並行，免費帳號不建議啟用
 
-  # Google Vertex AI（需要設定 GCP 憑證）
-  vertex:
+  # Gemini 2.5 穩定版（備用）
+  gemini_stable:
     type: google_genai
-    api_key: your-vertex-api-key
-    model: gemini-2.0-flash-exp-image-generation
+    api_key: AIzaxxxxxxxxxxxxxxxxxxxxxxxxx
+    model: gemini-2.5-flash  # 穩定版
     default_aspect_ratio: "16:9"
-    high_concurrency: true  # 付費帳號可以啟用高並行
+    high_concurrency: false
 
   # OpenAI DALL-E
   dalle:

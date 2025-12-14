@@ -113,7 +113,7 @@ providers:
   gemini:
     type: google_genai
     api_key: 你的_GEMINI_API_KEY
-    model: gemini-2.0-flash-exp-image-generation
+    model: gemini-3.0-flash-preview-image
     default_aspect_ratio: "16:9"
     high_concurrency: false
 ```
@@ -266,7 +266,7 @@ pnpm dev
 
 | 供應商 | 類型 | 推薦模型 | 說明 |
 |--------|------|----------|------|
-| Google Gemini | google_genai | gemini-2.0-flash-exp-image-generation | 免費額度多 |
+| Google Gemini | google_genai | gemini-3.0-flash-preview-image | 最新 3.0 版本 |
 | OpenAI DALL-E | openai_compatible | dall-e-3 | 品質好，需付費 |
 | 第三方 API | image_api | 依供應商 | 支援 OpenAI 相容格式 |
 
@@ -406,10 +406,11 @@ Content-Type: application/json
 
 ## 授權說明
 
-本專案採用 [MIT License](LICENSE) 授權。
+本專案僅供「阿亮老師」授課學員學習使用。
 
-- 可自由使用、修改、散布
-- 需保留原始授權聲明
+- 僅限學員個人學習、練習用途
+- 禁止商業使用
+- 禁止公開散布或轉載
 
 ---
 

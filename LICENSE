@@ -1,21 +1,33 @@
-MIT License
+Educational Use License / 教育使用授權
 
-Copyright (c) 2025
+Copyright (c) 2025 阿亮老師
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+本專案僅供「阿亮老師」授課學員學習使用。
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+授權範圍：
+- 僅限學員個人學習、練習用途
+- 可下載、執行、修改程式碼進行學習
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+禁止事項：
+- 禁止商業使用
+- 禁止公開散布或轉載
+- 禁止移除本授權聲明
+
+免責聲明：
+本軟體按「原樣」提供，不提供任何形式的明示或暗示擔保。
+作者不對使用本軟體所造成的任何損害負責。
+
+---
+
+This project is for educational use only by students of "Teacher A-Liang".
+
+Permitted:
+- Personal learning and practice
+- Download, run, and modify code for learning purposes
+
+Prohibited:
+- Commercial use
+- Public distribution or redistribution
+- Removal of this license notice
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
