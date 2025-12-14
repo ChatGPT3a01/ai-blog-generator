@@ -414,7 +414,7 @@ Content-Type: application/json
 
 ---
 
-## 作者資訊
+## 相關資源連結
 
 **阿亮老師**
 
