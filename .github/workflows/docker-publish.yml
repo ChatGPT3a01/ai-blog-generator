@@ -9,8 +9,8 @@ on:
   workflow_dispatch:
 
 env:
-  DOCKER_USERNAME: histonemax
-  IMAGE_NAME: redink
+  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  IMAGE_NAME: ai-blog-generator
 
 jobs:
   build-and-push:

@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 專案概述
 
-AI 圖文生成器 - 輸入主題自動生成部落格文章大綱、內文和配圖的工具。基於 [RedInk](https://github.com/HisMax/RedInk) 改造。
+AI 圖文生成器 - 以 GitHub Copilot 建置的部落格圖文生成工具，使用 AI 自動生成部落格文章大綱、內文和配圖。
 
 ## 常用指令
 

@@ -1,6 +1,6 @@
 # AI 圖文生成器 - 部落格文章一鍵生成
 
-基於 [RedInk](https://github.com/HisMax/RedInk) 改造的部落格圖文生成工具，使用 AI 自動生成部落格文章大綱、內文和配圖。
+以 GitHub Copilot 建置的部落格圖文生成工具，使用 AI 自動生成部落格文章大綱、內文和配圖。
 
 ---
 
@@ -369,17 +369,16 @@ Content-Type: application/json
 
 ## 授權說明
 
-本專案基於 [RedInk](https://github.com/HisMax/RedInk) 修改，遵循 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) 授權。
+本專案採用 [MIT License](LICENSE) 授權。
 
-- 可自由用於個人、學習、研究用途
-- 禁止商業用途（除非獲得原作者授權）
-- 修改後需以相同授權分享
+- 可自由使用、修改、散布
+- 需保留原始授權聲明
 
 ---
 
-## 如何用 AI 建立類似專案
+## 如何用 AI 建立此專案
 
-如果你想用 AI（如 GitHub Copilot、Claude、ChatGPT）從零開始建立類似的專案，可以參考以下提示詞：
+如果你想用 AI（如 GitHub Copilot、Claude、ChatGPT）從零開始建立此專案，可以參考以下提示詞：
 
 ### 提示詞範例
 
@@ -418,6 +417,6 @@ Content-Type: application/json
 
 ## 致謝
 
-- [RedInk](https://github.com/HisMax/RedInk) - 原始專案
+- [GitHub Copilot](https://github.com/features/copilot) - AI 輔助開發
 - [Google Gemini](https://ai.google.dev/) - AI 服務
 - [OpenAI](https://openai.com/) - AI 服務
