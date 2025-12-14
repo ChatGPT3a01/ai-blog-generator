@@ -1,9 +1,9 @@
 <template>
-  <!-- 大纲查看模态框 -->
+  <!-- 大綱查看模態框 -->
   <div v-if="visible && pages" class="outline-modal-overlay" @click="$emit('close')">
     <div class="outline-modal-content" @click.stop>
       <div class="outline-modal-header">
-        <h3>完整大纲</h3>
+        <h3>完整大綱</h3>
         <button class="close-icon" @click="$emit('close')">×</button>
       </div>
       <div class="outline-modal-body">
@@ -22,47 +22,47 @@
 
 <script setup lang="ts">
 /**
- * 大纲查看模态框组件
+ * 大綱查看模態框元件
  *
- * 以卡片形式展示大纲的每一页内容，包含：
- * - 页码标识
- * - 页面类型（封面/内容/总结）
- * - 字数统计
- * - 完整内容
+ * 以卡片形式展示大綱的每一頁內容，包含：
+ * - 頁碼標識
+ * - 頁面類型（封面/內容/總結）
+ * - 字數統計
+ * - 完整內容
  */
 
-// 定义页面类型
+// 定義頁面類型
 interface Page {
   type: 'cover' | 'content' | 'summary'
   content: string
 }
 
-// 定义 Props
+// 定義 Props
 defineProps<{
   visible: boolean
   pages: Page[] | null
 }>()
 
-// 定义 Emits
+// 定義 Emits
 defineEmits<{
   (e: 'close'): void
 }>()
 
 /**
- * 获取页面类型的中文名称
+ * 取得頁面類型的中文名稱
  */
 function getPageTypeName(type: string): string {
   const names: Record<string, string> = {
     cover: '封面',
-    content: '内容',
-    summary: '总结'
+    content: '內容',
+    summary: '總結'
   }
-  return names[type] || '内容'
+  return names[type] || '內容'
 }
 </script>
 
 <style scoped>
-/* 模态框遮罩层 */
+/* 模態框遮罩層 */
 .outline-modal-overlay {
   position: fixed;
   inset: 0;
@@ -74,7 +74,7 @@ function getPageTypeName(type: string): string {
   padding: 40px;
 }
 
-/* 模态框内容容器 */
+/* 模態框內容容器 */
 .outline-modal-content {
   background: white;
   width: 100%;
@@ -87,7 +87,7 @@ function getPageTypeName(type: string): string {
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
-/* 模态框头部 */
+/* 模態框頭部 */
 .outline-modal-header {
   padding: 20px 24px;
   border-bottom: 1px solid #eee;
@@ -104,7 +104,7 @@ function getPageTypeName(type: string): string {
   color: #1a1a1a;
 }
 
-/* 关闭按钮 */
+/* 關閉按鈕 */
 .close-icon {
   background: none;
   border: none;
@@ -120,7 +120,7 @@ function getPageTypeName(type: string): string {
   color: #333;
 }
 
-/* 模态框主体（可滚动） */
+/* 模態框主體（可捲動） */
 .outline-modal-body {
   flex: 1;
   overflow-y: auto;
@@ -128,7 +128,7 @@ function getPageTypeName(type: string): string {
   background: #f9fafb;
 }
 
-/* 大纲页面卡片 */
+/* 大綱頁面卡片 */
 .outline-page-card {
   background: #ffffff;
   border-radius: 12px;
@@ -148,7 +148,7 @@ function getPageTypeName(type: string): string {
   margin-bottom: 0;
 }
 
-/* 卡片头部 */
+/* 卡片頭部 */
 .outline-page-card-header {
   display: flex;
   align-items: center;
@@ -158,7 +158,7 @@ function getPageTypeName(type: string): string {
   border-bottom: 1px solid #e5e7eb;
 }
 
-/* 页码标识 */
+/* 頁碼標識 */
 .page-badge {
   display: inline-flex;
   align-items: center;
@@ -174,7 +174,7 @@ function getPageTypeName(type: string): string {
   font-family: 'Inter', sans-serif;
 }
 
-/* 页面类型标识 */
+/* 頁面類型標識 */
 .page-type-badge {
   display: inline-flex;
   align-items: center;
@@ -201,14 +201,14 @@ function getPageTypeName(type: string): string {
   color: #388e3c;
 }
 
-/* 字数统计 */
+/* 字數統計 */
 .word-count {
   margin-left: auto;
   font-size: 11px;
   color: #999;
 }
 
-/* 卡片内容 */
+/* 卡片內容 */
 .outline-page-card-content {
   font-size: 14px;
   line-height: 1.8;
@@ -218,7 +218,7 @@ function getPageTypeName(type: string): string {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
 }
 
-/* 响应式布局 */
+/* 響應式佈局 */
 @media (max-width: 768px) {
   .outline-modal-overlay {
     padding: 20px;

@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 3 - 功能使用說明</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Microsoft JhengHei', 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            color: #333;
+        }
+
+        .nav-bar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            z-index: 10000;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .nav-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .nav-buttons { display: flex; gap: 12px; }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .nav-arrow {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.25);
+            color: white;
+            width: 60px; height: 60px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.4);
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 9000;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .nav-arrow:hover {
+            background: rgba(255,255,255,0.5);
+            transform: translateY(-50%) scale(1.1);
+        }
+        .prev-arrow { left: 30px; }
+        .next-arrow { right: 30px; }
+        .nav-arrow:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .slide-container {
+            width: 100%;
+            height: 100vh;
+            padding-top: 60px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .slide {
+            position: absolute;
+            top: 60px; left: 0;
+            width: 100%;
+            height: calc(100vh - 60px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: 10;
+        }
+
+        .slide.active {
+            display: flex;
+            opacity: 1;
+            z-index: 20;
+        }
+
+        .content-card {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            padding: 60px;
+            max-width: 1400px;
+            width: 95%;
+            max-height: 88vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        h1 { color: #11998e; font-size: 56px; margin-bottom: 24px; text-align: center; }
+        h2 { color: #11998e; font-size: 38px; margin-bottom: 35px; border-bottom: 3px solid #11998e; padding-bottom: 12px; }
+        h3 { color: #11998e; font-size: 26px; margin: 30px 0 15px 0; }
+        p, li { font-size: 20px; line-height: 1.8; color: #444; margin-bottom: 15px; }
+        code { background: #e8f5e9; padding: 3px 8px; border-radius: 6px; font-family: monospace; color: #11998e; font-weight: 600; font-size: 0.95em; }
+        pre { background: #282c34; color: #abb2bf; padding: 25px; border-radius: 12px; overflow-x: auto; margin: 25px 0; font-size: 18px; line-height: 1.6; font-family: monospace; }
+        .box { padding: 25px; border-radius: 12px; margin: 25px 0; border-left: 6px solid; font-size: 20px; }
+        .info { background: #e3f2fd; border-color: #2196f3; color: #0d47a1; }
+        .warning { background: #fff3cd; border-color: #ffc107; color: #856404; }
+        .success { background: #d4edda; border-color: #28a745; color: #155724; }
+        .highlight { background: linear-gradient(120deg, #11998e 0%, #38ef7d 100%); padding: 2px 8px; border-radius: 4px; font-weight: bold; color: white; }
+
+        .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-top: 30px; }
+        .concept-card { background: #f8f9fa; padding: 25px; border-radius: 15px; border: 1px solid #e9ecef; transition: transform 0.3s; }
+        .concept-card:hover { transform: translateY(-8px); border-color: #11998e; }
+
+        .indicators { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); display: flex; gap: 12px; z-index: 4000; padding: 10px 25px; background: rgba(0,0,0,0.3); border-radius: 30px; backdrop-filter: blur(5px); }
+        .dot { width: 12px; height: 12px; background: rgba(255,255,255,0.4); border-radius: 50%; cursor: pointer; transition: all 0.3s; }
+        .dot.active { background: #fff; transform: scale(1.3); }
+
+        .step-box { display: flex; align-items: flex-start; gap: 20px; padding: 20px; background: linear-gradient(135deg, #f0fff4 0%, #e8f5e9 100%); border-radius: 15px; margin: 20px 0; }
+        .step-num { min-width: 50px; height: 50px; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="nav-bar">
+        <div class="nav-title">Part 3 - 功能使用說明</div>
+        <div class="nav-buttons">
+            <a href="index.html" class="nav-btn">🏠 首頁</a>
+            <button class="nav-btn" onclick="toggleFullscreen()">🖥️ 全螢幕</button>
+            <a href="https://www.facebook.com/iddmail?locale=zh_TW" target="_blank" class="nav-btn">📘 FB</a>
+            <a href="https://www.youtube.com/@Liang-yt02" target="_blank" class="nav-btn">🎥 YT</a>
+        </div>
+    </div>
+
+    <div class="slide-container">
+        <!-- Slide 1: 封面 -->
+        <div class="slide active">
+            <div class="content-card" style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                <h4 style="color: #11998e; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px;">User Guide</h4>
+                <h1>功能使用說明</h1>
+                <h2 style="border: none; font-weight: normal; font-size: 28px; color: #666; max-width: 800px;">
+                    完整操作流程，從輸入到發布
+                </h2>
+                <div style="margin-top: 40px; display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;">
+                    <span class="highlight">輸入主題</span>
+                    <span class="highlight">編輯大綱</span>
+                    <span class="highlight">生成圖片</span>
+                    <span class="highlight">發布文章</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: 首頁功能 -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>🏠 首頁 - 創作起點</h2>
+                <p>開啟應用程式後，你會看到首頁的創作介面：</p>
+                <div class="step-box">
+                    <div class="step-num">1</div>
+                    <div>
+                        <h3>輸入主題</h3>
+                        <p>在輸入框中輸入你想創作的部落格主題，例如：「台北美食推薦」、「在家運動教學」、「程式設計入門」等。</p>
+                    </div>
+                </div>
+                <div class="step-box">
+                    <div class="step-num">2</div>
+                    <div>
+                        <h3>上傳參考圖片（選用）</h3>
+                        <p>點擊圖片按鈕，可以上傳參考圖片。AI 會參考這些圖片的風格來生成配圖。</p>
+                    </div>
+                </div>
+                <div class="step-box">
+                    <div class="step-num">3</div>
+                    <div>
+                        <h3>選擇文字風格</h3>
+                        <p>點擊風格選擇器，從 8 種文字風格中選擇最適合的風格。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: 大綱編輯 -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>📝 大綱編輯頁</h2>
+                <p>AI 生成大綱後，你可以在此頁面進行編輯：</p>
+                <div class="concept-grid">
+                    <div class="concept-card">
+                        <h3>📄 檢視大綱</h3>
+                        <p>AI 會自動將主題拆分為 4 頁內容：封面、內容頁、總結頁。</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>✏️ 編輯內容</h3>
+                        <p>點擊任一頁面的內容區域，可以直接編輯文字。</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>🔄 調整順序</h3>
+                        <p>拖曳頁面卡片可以調整順序。</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>➕ 新增/刪除</h3>
+                        <p>可以新增更多頁面或刪除不需要的頁面。</p>
+                    </div>
+                </div>
+                <div class="box info">
+                    <strong>提示：</strong>編輯完成後，點擊「生成圖片」按鈕開始生成配圖。
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: 選擇圖片風格 -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>🎨 選擇圖片風格</h2>
+                <p>在生成圖片前，選擇你喜歡的圖片風格：</p>
+                <div class="concept-grid">
+                    <div class="concept-card">
+                        <h3>🖼️ 扁平插畫</h3>
+                        <p>現代感強、清爽的 2D 扁平設計風格</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>🎭 3D 卡通</h3>
+                        <p>立體、可愛、Q 版的 3D 卡通風格</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>🎨 水彩風格</h3>
+                        <p>柔和、藝術感、手繪質感</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>📷 寫實風格</h3>
+                        <p>逼真、照片級別的寫實風格</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>🌸 日系動漫</h3>
+                        <p>日本動漫風格的二次元設計</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>⬜ 極簡風格</h3>
+                        <p>簡約、大量留白的設計</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>📻 復古風格</h3>
+                        <p>懷舊、復古質感的設計</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>🔮 科技風格</h3>
+                        <p>未來感、賽博龐克風格</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: 圖片生成 -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>⚡ 圖片生成中</h2>
+                <p>點擊「生成圖片」後，AI 會開始為每一頁生成配圖：</p>
+                <div class="step-box">
+                    <div class="step-num">⏳</div>
+                    <div>
+                        <h3>等待生成</h3>
+                        <p>每張圖片約需 10-30 秒生成，請耐心等待。頁面會即時顯示生成進度。</p>
+                    </div>
+                </div>
+                <div class="step-box">
+                    <div class="step-num">✅</div>
+                    <div>
+                        <h3>完成通知</h3>
+                        <p>所有圖片生成完成後，會自動跳轉到結果頁面。</p>
+                    </div>
+                </div>
+                <div class="box warning">
+                    <strong>注意：</strong>生成過程中請勿關閉或重新整理頁面，以免中斷生成。
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: 結果頁功能 -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>🎉 結果頁面</h2>
+                <p>生成完成後，你可以在結果頁面進行以下操作：</p>
+                <div class="concept-grid">
+                    <div class="concept-card">
+                        <h3>👁️ 預覽大圖</h3>
+                        <p>點擊任一圖片可以預覽原始大小的高清圖片</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>🔄 重新生成</h3>
+                        <p>對某張圖不滿意？點擊「重繪」按鈕重新生成</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>⬇️ 下載圖片</h3>
+                        <p>單張下載或「一鍵下載」所有圖片</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>☁️ 上傳圖床</h3>
+                        <p>上傳到 ImgBB 取得公開 URL</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: 上傳圖床 -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>☁️ 上傳到圖床</h2>
+                <p>要發布到 Blogger，需要先將圖片上傳到圖床取得公開連結：</p>
+                <div class="step-box">
+                    <div class="step-num">1</div>
+                    <div>
+                        <h3>設定 ImgBB API Key</h3>
+                        <p>首次使用需要在設定頁面配置 ImgBB API Key（免費取得）</p>
+                    </div>
+                </div>
+                <div class="step-box">
+                    <div class="step-num">2</div>
+                    <div>
+                        <h3>一鍵上傳</h3>
+                        <p>點擊「一鍵上傳圖床」按鈕，系統會自動上傳所有圖片</p>
+                    </div>
+                </div>
+                <div class="step-box">
+                    <div class="step-num">3</div>
+                    <div>
+                        <h3>取得連結</h3>
+                        <p>上傳完成後，每張圖片旁會顯示「已上傳」標籤，點擊可複製連結</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: 發布到 Blogger -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>📤 發布到 Blogger</h2>
+                <p>圖片上傳完成後，就可以一鍵發布到你的 Blogger：</p>
+                <div class="step-box">
+                    <div class="step-num">1</div>
+                    <div>
+                        <h3>點擊「發布到 Blogger」</h3>
+                        <p>打開發布彈窗</p>
+                    </div>
+                </div>
+                <div class="step-box">
+                    <div class="step-num">2</div>
+                    <div>
+                        <h3>Google 登入授權</h3>
+                        <p>首次使用需要登入 Google 帳號並授權存取 Blogger</p>
+                    </div>
+                </div>
+                <div class="step-box">
+                    <div class="step-num">3</div>
+                    <div>
+                        <h3>選擇部落格</h3>
+                        <p>如果你有多個部落格，選擇要發布的目標</p>
+                    </div>
+                </div>
+                <div class="step-box">
+                    <div class="step-num">4</div>
+                    <div>
+                        <h3>發布文章</h3>
+                        <p>確認標題和內容後，點擊「發布」即可！</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: 歷史記錄 -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>📚 歷史記錄</h2>
+                <p>點擊導航列的「歷史記錄」可以查看所有創作：</p>
+                <div class="concept-grid">
+                    <div class="concept-card">
+                        <h3>🔍 搜尋功能</h3>
+                        <p>輸入關鍵字搜尋過去的創作</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>📊 統計資訊</h3>
+                        <p>查看總創作數、完成數等統計</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>🖼️ 圖片畫廊</h3>
+                        <p>點擊任一記錄可以查看所有圖片</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>📝 查看大綱</h3>
+                        <p>點擊可以查看原始大綱內容</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: 下一步 -->
+        <div class="slide">
+            <div class="content-card" style="text-align: center;">
+                <h2>🎓 學會使用了！</h2>
+                <p style="font-size: 24px; margin: 40px 0;">接下來學習進階設定和部署方式！</p>
+                <div style="margin-top: 40px;">
+                    <a href="Part4_部署教學.html" style="display: inline-block; padding: 20px 50px; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; text-decoration: none; border-radius: 30px; font-size: 22px; font-weight: 600; box-shadow: 0 10px 30px rgba(17, 153, 142, 0.4); transition: transform 0.3s;">
+                        前往 Part 4：進階設定與部署 →
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="nav-arrow prev-arrow" id="prevBtn" onclick="changeSlide(-1)">❮</button>
+    <button class="nav-arrow next-arrow" id="nextBtn" onclick="changeSlide(1)">❯</button>
+    <div class="indicators" id="indicatorContainer"></div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function init() {
+            createIndicators();
+            showSlide(0);
+            updateButtons();
+            document.addEventListener('keydown', handleKeydown);
+        }
+
+        function handleKeydown(e) {
+            if (e.key === 'ArrowLeft') changeSlide(-1);
+            if (e.key === 'ArrowRight') changeSlide(1);
+        }
+
+        function createIndicators() {
+            const container = document.getElementById('indicatorContainer');
+            container.innerHTML = '';
+            slides.forEach((_, index) => {
+                const dot = document.createElement('div');
+                dot.className = 'dot';
+                dot.onclick = () => goToSlide(index);
+                container.appendChild(dot);
+            });
+        }
+
+        function showSlide(index) {
+            if (index < 0) index = 0;
+            if (index >= totalSlides) index = totalSlides - 1;
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[index].classList.add('active');
+            currentSlide = index;
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach((dot, idx) => dot.classList.toggle('active', idx === index));
+            updateButtons();
+        }
+
+        function changeSlide(direction) { showSlide(currentSlide + direction); }
+        function goToSlide(index) { showSlide(index); }
+        function updateButtons() {
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+        }
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+            else if (document.exitFullscreen) document.exitFullscreen();
+        }
+        init();
+    </script>
+</body>
+</html>

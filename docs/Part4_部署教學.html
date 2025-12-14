@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 4 - 進階設定與部署</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Microsoft JhengHei', 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            color: #333;
+        }
+
+        .nav-bar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            z-index: 10000;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .nav-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .nav-buttons { display: flex; gap: 12px; }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .nav-arrow {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.25);
+            color: white;
+            width: 60px; height: 60px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.4);
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 9000;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .nav-arrow:hover {
+            background: rgba(255,255,255,0.5);
+            transform: translateY(-50%) scale(1.1);
+        }
+        .prev-arrow { left: 30px; }
+        .next-arrow { right: 30px; }
+        .nav-arrow:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .slide-container {
+            width: 100%;
+            height: 100vh;
+            padding-top: 60px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .slide {
+            position: absolute;
+            top: 60px; left: 0;
+            width: 100%;
+            height: calc(100vh - 60px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: 10;
+        }
+
+        .slide.active {
+            display: flex;
+            opacity: 1;
+            z-index: 20;
+        }
+
+        .content-card {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            padding: 60px;
+            max-width: 1400px;
+            width: 95%;
+            max-height: 88vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        h1 { color: #f5576c; font-size: 56px; margin-bottom: 24px; text-align: center; }
+        h2 { color: #f5576c; font-size: 38px; margin-bottom: 35px; border-bottom: 3px solid #f5576c; padding-bottom: 12px; }
+        h3 { color: #f5576c; font-size: 26px; margin: 30px 0 15px 0; }
+        p, li { font-size: 20px; line-height: 1.8; color: #444; margin-bottom: 15px; }
+        code { background: #fff0f3; padding: 3px 8px; border-radius: 6px; font-family: monospace; color: #f5576c; font-weight: 600; font-size: 0.95em; }
+        pre { background: #282c34; color: #abb2bf; padding: 25px; border-radius: 12px; overflow-x: auto; margin: 25px 0; font-size: 18px; line-height: 1.6; font-family: monospace; }
+        .box { padding: 25px; border-radius: 12px; margin: 25px 0; border-left: 6px solid; font-size: 20px; }
+        .info { background: #e3f2fd; border-color: #2196f3; color: #0d47a1; }
+        .warning { background: #fff3cd; border-color: #ffc107; color: #856404; }
+        .success { background: #d4edda; border-color: #28a745; color: #155724; }
+        .highlight { background: linear-gradient(120deg, #f093fb 0%, #f5576c 100%); padding: 2px 8px; border-radius: 4px; font-weight: bold; color: white; }
+
+        .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-top: 30px; }
+        .concept-card { background: #f8f9fa; padding: 25px; border-radius: 15px; border: 1px solid #e9ecef; transition: transform 0.3s; }
+        .concept-card:hover { transform: translateY(-8px); border-color: #f5576c; }
+
+        .indicators { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); display: flex; gap: 12px; z-index: 4000; padding: 10px 25px; background: rgba(0,0,0,0.3); border-radius: 30px; backdrop-filter: blur(5px); }
+        .dot { width: 12px; height: 12px; background: rgba(255,255,255,0.4); border-radius: 50%; cursor: pointer; transition: all 0.3s; }
+        .dot.active { background: #fff; transform: scale(1.3); }
+
+        .config-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .config-table th, .config-table td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+        .config-table th { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; }
+        .config-table tr:hover { background: #fff0f3; }
+    </style>
+</head>
+<body>
+    <div class="nav-bar">
+        <div class="nav-title">Part 4 - 進階設定與部署</div>
+        <div class="nav-buttons">
+            <a href="index.html" class="nav-btn">🏠 首頁</a>
+            <button class="nav-btn" onclick="toggleFullscreen()">🖥️ 全螢幕</button>
+            <a href="https://www.facebook.com/iddmail?locale=zh_TW" target="_blank" class="nav-btn">📘 FB</a>
+            <a href="https://www.youtube.com/@Liang-yt02" target="_blank" class="nav-btn">🎥 YT</a>
+        </div>
+    </div>
+
+    <div class="slide-container">
+        <!-- Slide 1: 封面 -->
+        <div class="slide active">
+            <div class="content-card" style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                <h4 style="color: #f5576c; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px;">Advanced Configuration</h4>
+                <h1>進階設定與部署</h1>
+                <h2 style="border: none; font-weight: normal; font-size: 28px; color: #666; max-width: 800px;">
+                    自訂 API、修改設定、雲端部署
+                </h2>
+                <div style="margin-top: 40px; display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;">
+                    <span class="highlight">API 設定</span>
+                    <span class="highlight">Prompt 自訂</span>
+                    <span class="highlight">雲端部署</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: API 供應商設定 -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>🔧 API 供應商設定</h2>
+                <p>在設定頁面可以管理多個 API 供應商：</p>
+                <table class="config-table">
+                    <tr>
+                        <th>功能</th>
+                        <th>支援的 API</th>
+                        <th>說明</th>
+                    </tr>
+                    <tr>
+                        <td>文字生成</td>
+                        <td>OpenAI、Gemini、Groq、自訂</td>
+                        <td>支援任何 OpenAI 相容 API</td>
+                    </tr>
+                    <tr>
+                        <td>圖片生成</td>
+                        <td>DALL-E、Ideogram、Flux、自訂</td>
+                        <td>支援多種圖片生成服務</td>
+                    </tr>
+                </table>
+                <div class="box info">
+                    <strong>提示：</strong>你可以新增多個供應商，並隨時切換使用中的供應商。
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: 新增供應商 -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>➕ 新增 API 供應商</h2>
+                <p>新增自訂 API 供應商的步驟：</p>
+                <ol style="margin-left: 25px; font-size: 20px; line-height: 2.2;">
+                    <li>在設定頁面點擊「新增」按鈕</li>
+                    <li>選擇供應商類型（或選擇「自訂」）</li>
+                    <li>輸入 API Key</li>
+                    <li>輸入 Base URL（自訂 API 才需要）</li>
+                    <li>輸入模型名稱</li>
+                    <li>點擊「測試連線」確認設定正確</li>
+                    <li>儲存設定</li>
+                </ol>
+                <div class="box warning">
+                    <strong>注意：</strong>不同供應商的 Base URL 格式可能不同，請參考該服務的文件。
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Prompt 自訂 -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>📝 自訂 Prompt 模板</h2>
+                <p>你可以修改 AI 的提示詞模板來調整生成風格：</p>
+                <h3>檔案位置</h3>
+                <pre><code>backend/prompts/
+├── outline_prompt.txt      # 大綱生成提示詞
+├── image_prompt.txt        # 圖片生成提示詞（詳細版）
+└── image_prompt_short.txt  # 圖片生成提示詞（簡短版）</code></pre>
+                <div class="box info">
+                    <strong>提示：</strong>修改後需要重新啟動服務才會生效。
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: 設定檔說明 -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>📁 設定檔結構</h2>
+                <p>系統會自動建立以下設定檔：</p>
+                <pre><code># 根目錄
+text_providers.yaml    # 文字生成 API 設定
+image_providers.yaml   # 圖片生成 API 設定
+upload_config.yaml     # ImgBB 圖床設定
+
+# 資料目錄
+data/
+├── history.json       # 歷史記錄
+└── tasks/             # 生成的圖片暫存</code></pre>
+                <div class="box warning">
+                    <strong>注意：</strong>這些檔案包含敏感資訊（API Key），請勿上傳到公開的程式碼庫。
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: 開發模式 -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>💻 開發模式</h2>
+                <p>如果你想修改前端程式碼，需要進入開發模式：</p>
+                <h3>安裝前端依賴</h3>
+                <pre><code>cd frontend
+npm install</code></pre>
+                <h3>啟動開發伺服器</h3>
+                <pre><code># 終端機 1：啟動後端
+python -m backend.app
+
+# 終端機 2：啟動前端開發伺服器
+cd frontend
+npm run dev</code></pre>
+                <p>前端開發伺服器會在 <code>http://localhost:5173</code> 運行，並自動代理 API 請求到後端。</p>
+            </div>
+        </div>
+
+        <!-- Slide 7: 建置前端 -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>🔨 建置前端</h2>
+                <p>修改完前端程式碼後，需要重新建置：</p>
+                <pre><code>cd frontend
+npm run build</code></pre>
+                <p>建置完成後，檔案會輸出到 <code>frontend/dist</code> 目錄。</p>
+                <p>後端會自動服務這些靜態檔案，所以只需要啟動後端即可：</p>
+                <pre><code>python -m backend.app</code></pre>
+                <div class="box success">
+                    <strong>完成！</strong>現在訪問 <code>http://localhost:8099</code> 就是最新版本。
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: 雲端部署選項 -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>☁️ 雲端部署選項</h2>
+                <p>你可以將服務部署到雲端，以下是一些選項：</p>
+                <div class="concept-grid">
+                    <div class="concept-card">
+                        <h3>🐍 PythonAnywhere</h3>
+                        <p>免費方案可用，適合小型專案</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>🚂 Railway</h3>
+                        <p>簡單易用，支援 Git 自動部署</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>🌊 Render</h3>
+                        <p>免費方案可用，自動 SSL</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>☁️ Google Cloud Run</h3>
+                        <p>按使用量計費，適合生產環境</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: 安全建議 -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>🔒 安全建議</h2>
+                <div class="concept-grid">
+                    <div class="concept-card">
+                        <h3>🔑 保護 API Key</h3>
+                        <p>使用環境變數或 secrets 管理，不要寫死在程式碼中</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>📁 .gitignore</h3>
+                        <p>確保設定檔（*.yaml）不會被上傳到 Git</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>🔐 HTTPS</h3>
+                        <p>部署時使用 HTTPS，保護資料傳輸</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>🚫 限制存取</h3>
+                        <p>可加入簡單的密碼驗證機制</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: 總結 -->
+        <div class="slide">
+            <div class="content-card" style="text-align: center;">
+                <h2>🎉 恭喜完成！</h2>
+                <p style="font-size: 24px; margin: 30px 0;">你已經學會了 AI 部落格圖文生成器的所有功能！</p>
+                <div class="concept-grid" style="text-align: left;">
+                    <div class="concept-card">
+                        <h3>✅ 你學會了</h3>
+                        <ul style="font-size: 18px;">
+                            <li>安裝和設定環境</li>
+                            <li>使用 AI 生成圖文</li>
+                            <li>上傳圖片到圖床</li>
+                            <li>發布到 Blogger</li>
+                            <li>進階設定和自訂</li>
+                        </ul>
+                    </div>
+                    <div class="concept-card">
+                        <h3>🚀 下一步</h3>
+                        <ul style="font-size: 18px;">
+                            <li>開始創作你的第一篇文章！</li>
+                            <li>嘗試不同的風格組合</li>
+                            <li>分享你的作品</li>
+                            <li>加入社群討論</li>
+                        </ul>
+                    </div>
+                </div>
+                <div style="margin-top: 40px;">
+                    <a href="index.html" style="display: inline-block; padding: 20px 50px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; text-decoration: none; border-radius: 30px; font-size: 22px; font-weight: 600; box-shadow: 0 10px 30px rgba(245, 87, 108, 0.4);">
+                        返回課程首頁
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="nav-arrow prev-arrow" id="prevBtn" onclick="changeSlide(-1)">❮</button>
+    <button class="nav-arrow next-arrow" id="nextBtn" onclick="changeSlide(1)">❯</button>
+    <div class="indicators" id="indicatorContainer"></div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function init() {
+            createIndicators();
+            showSlide(0);
+            updateButtons();
+            document.addEventListener('keydown', handleKeydown);
+        }
+
+        function handleKeydown(e) {
+            if (e.key === 'ArrowLeft') changeSlide(-1);
+            if (e.key === 'ArrowRight') changeSlide(1);
+        }
+
+        function createIndicators() {
+            const container = document.getElementById('indicatorContainer');
+            container.innerHTML = '';
+            slides.forEach((_, index) => {
+                const dot = document.createElement('div');
+                dot.className = 'dot';
+                dot.onclick = () => goToSlide(index);
+                container.appendChild(dot);
+            });
+        }
+
+        function showSlide(index) {
+            if (index < 0) index = 0;
+            if (index >= totalSlides) index = totalSlides - 1;
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[index].classList.add('active');
+            currentSlide = index;
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach((dot, idx) => dot.classList.toggle('active', idx === index));
+            updateButtons();
+        }
+
+        function changeSlide(direction) { showSlide(currentSlide + direction); }
+        function goToSlide(index) { showSlide(index); }
+        function updateButtons() {
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+        }
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+            else if (document.exitFullscreen) document.exitFullscreen();
+        }
+        init();
+    </script>
+</body>
+</html>

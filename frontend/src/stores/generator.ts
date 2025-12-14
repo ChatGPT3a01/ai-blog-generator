@@ -7,6 +7,10 @@ export interface GeneratedImage {
   status: 'generating' | 'done' | 'error' | 'retrying'
   error?: string
   retryable?: boolean
+  // 上傳相關
+  uploadedUrl?: string  // 已上傳到圖床的公開 URL
+  uploadStatus?: 'pending' | 'uploading' | 'done' | 'error'
+  uploadError?: string
 }
 
 export interface GeneratorState {
@@ -40,6 +44,9 @@ export interface GeneratorState {
 
   // 使用者上傳的圖片（用於圖片生成參考）
   userImages: File[]
+
+  // 圖片風格
+  imageStyle: string
 }
 
 const STORAGE_KEY = 'generator-state'
@@ -68,7 +75,8 @@ function saveState(state: GeneratorState) {
       progress: state.progress,
       images: state.images,
       taskId: state.taskId,
-      recordId: state.recordId
+      recordId: state.recordId,
+      imageStyle: state.imageStyle
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave))
   } catch (e) {
@@ -94,7 +102,8 @@ export const useGeneratorStore = defineStore('generator', {
       images: saved.images || [],
       taskId: saved.taskId || null,
       recordId: saved.recordId || null,
-      userImages: []  // 不從 localStorage 恢復
+      userImages: [],  // 不從 localStorage 恢復
+      imageStyle: saved.imageStyle || 'flat'  // 預設扁平插畫風
     }
   },
 
@@ -252,6 +261,47 @@ export const useGeneratorStore = defineStore('generator', {
       return this.images.some(img => img.status === 'error')
     },
 
+    // 設定圖片上傳中狀態
+    setImageUploading(index: number) {
+      const image = this.images.find(img => img.index === index)
+      if (image) {
+        image.uploadStatus = 'uploading'
+        delete image.uploadError
+      }
+    },
+
+    // 設定圖片上傳完成
+    setImageUploaded(index: number, uploadedUrl: string) {
+      const image = this.images.find(img => img.index === index)
+      if (image) {
+        image.uploadedUrl = uploadedUrl
+        image.uploadStatus = 'done'
+        delete image.uploadError
+      }
+    },
+
+    // 設定圖片上傳失敗
+    setImageUploadError(index: number, error: string) {
+      const image = this.images.find(img => img.index === index)
+      if (image) {
+        image.uploadStatus = 'error'
+        image.uploadError = error
+      }
+    },
+
+    // 取得已上傳的圖片 URL 列表
+    getUploadedUrls() {
+      return this.images
+        .filter(img => img.uploadedUrl)
+        .sort((a, b) => a.index - b.index)
+        .map(img => img.uploadedUrl!)
+    },
+
+    // 檢查是否所有圖片都已上傳
+    allImagesUploaded() {
+      return this.images.every(img => img.uploadedUrl)
+    },
+
     // 重置
     reset() {
       this.stage = 'input'
@@ -269,6 +319,7 @@ export const useGeneratorStore = defineStore('generator', {
       this.taskId = null
       this.recordId = null
       this.userImages = []
+      this.imageStyle = 'flat'
       // 清除 localStorage
       localStorage.removeItem(STORAGE_KEY)
     },
@@ -295,7 +346,8 @@ export function setupAutoSave() {
       progress: store.progress,
       images: store.images,
       taskId: store.taskId,
-      recordId: store.recordId
+      recordId: store.recordId,
+      imageStyle: store.imageStyle
     }),
     () => {
       store.saveToStorage()

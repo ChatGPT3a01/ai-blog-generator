@@ -303,7 +303,9 @@ onMounted(async () => {
     // userImages - 使用者上傳的參考圖片
     store.userImages.length > 0 ? store.userImages : undefined,
     // userTopic - 使用者原始輸入
-    store.topic
+    store.topic,
+    // imageStyle - 圖片風格
+    store.imageStyle
   )
 })
 </script>

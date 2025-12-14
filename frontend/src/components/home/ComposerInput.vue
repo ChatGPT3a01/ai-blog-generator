@@ -13,7 +13,7 @@
         :value="modelValue"
         @input="handleInput"
         class="composer-textarea"
-        placeholder="输入主题，例如：秋季显白美甲..."
+        placeholder="輸入你的想望，例如：秋天的風，是思念的呢喃...."
         @keydown.enter.prevent="handleEnter"
         :disabled="loading"
         rows="1"
@@ -27,7 +27,7 @@
         :key="idx"
         class="uploaded-image-item"
       >
-        <img :src="img.preview" :alt="`图片 ${idx + 1}`" />
+        <img :src="img.preview" :alt="`圖片 ${idx + 1}`" />
         <button class="remove-image-btn" @click="removeImage(idx)">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -36,14 +36,34 @@
         </button>
       </div>
       <div class="upload-hint">
-        这些图片将用于生成封面和内容参考
+        這些圖片將用於生成封面和內容參考
+      </div>
+    </div>
+
+    <!-- 風格選擇區域 -->
+    <div class="style-selector-area">
+      <!-- 文字風格選擇 -->
+      <div class="style-group">
+        <label class="style-label">文字風格</label>
+        <div class="style-chips">
+          <button
+            v-for="style in textStyles"
+            :key="style.id"
+            class="style-chip"
+            :class="{ active: selectedTextStyle === style.id }"
+            @click="selectedTextStyle = style.id"
+            :title="style.description"
+          >
+            {{ style.icon }} {{ style.name }}
+          </button>
+        </div>
       </div>
     </div>
 
     <!-- 工具栏 -->
     <div class="composer-toolbar">
       <div class="toolbar-left">
-        <label class="tool-btn" :class="{ 'active': uploadedImages.length > 0 }" title="上传参考图">
+        <label class="tool-btn" :class="{ 'active': uploadedImages.length > 0 }" title="上傳參考圖">
           <input
             type="file"
             accept="image/*"
@@ -63,11 +83,11 @@
       <div class="toolbar-right">
         <button
           class="btn btn-primary generate-btn"
-          @click="$emit('generate')"
+          @click="handleGenerate"
           :disabled="!modelValue.trim() || loading"
         >
           <span v-if="loading" class="spinner-sm"></span>
-          <span v-else>生成大纲</span>
+          <span v-else>生成大綱</span>
         </button>
       </div>
     </div>
@@ -83,6 +103,7 @@ import { ref, onUnmounted } from 'vue'
  * 功能：
  * - 主题文本输入（自动调整高度）
  * - 参考图片上传（最多5张）
+ * - 文字風格選擇
  * - 生成按钮
  */
 
@@ -91,6 +112,21 @@ interface UploadedImage {
   file: File
   preview: string
 }
+
+// 文字風格定義
+const textStyles = [
+  { id: 'professional', name: '專業解析', icon: '📊', description: '條理清楚、重邏輯與事實，像深度教學文章' },
+  { id: 'teacher', name: '教師引導', icon: '👨‍🏫', description: '一步一步帶讀者，有引導、有鋪陳' },
+  { id: 'story', name: '故事敘述', icon: '📖', description: '從情境或事件切入，有轉折，結尾收斂觀點' },
+  { id: 'opinion', name: '觀點評論', icon: '💭', description: '有立場、有思辨，不只是整理資料' },
+  { id: 'tutorial', name: '實戰教學', icon: '🛠️', description: '步驟化、可照做，像實作教學文章' },
+  { id: 'summary', name: '懶人包', icon: '📋', description: '條列重點、好掃讀、易收藏' },
+  { id: 'social', name: '社群延伸', icon: '💬', description: '半口語、節奏感強，像與讀者對話' },
+  { id: 'brand', name: '品牌觀點', icon: '🎯', description: '有一致價值觀、穩定語氣，建立作者形象' }
+]
+
+// 選中的文字風格
+const selectedTextStyle = ref('professional')
 
 // 定义 Props
 const props = defineProps<{
@@ -101,9 +137,16 @@ const props = defineProps<{
 // 定义 Emits
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
-  (e: 'generate'): void
+  (e: 'generate', textStyle: string): void
   (e: 'imagesChange', images: File[]): void
 }>()
+
+/**
+ * 處理生成按鈕點擊
+ */
+function handleGenerate() {
+  emit('generate', selectedTextStyle.value)
+}
 
 // 输入框引用
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
@@ -397,5 +440,53 @@ defineExpose({
   to {
     transform: rotate(360deg);
   }
+}
+
+/* 風格選擇區域 */
+.style-selector-area {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.style-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.style-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-sub, #666);
+}
+
+.style-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.style-chip {
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid #e0e0e0;
+  background: #fafafa;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--text-main, #333);
+}
+
+.style-chip:hover {
+  border-color: var(--primary, #ff2442);
+  background: #fff;
+}
+
+.style-chip.active {
+  border-color: var(--primary, #ff2442);
+  background: rgba(255, 36, 66, 0.1);
+  color: var(--primary, #ff2442);
+  font-weight: 500;
 }
 </style>

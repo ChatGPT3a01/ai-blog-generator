@@ -191,3 +191,106 @@ body {
   color: var(--primary);
   text-decoration: underline;
 }
+
+/* 音樂播放器 */
+.music-player-section {
+  margin-top: auto;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.music-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-sub);
+  margin-bottom: 10px;
+}
+
+.music-presets {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.preset-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preset-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.preset-btn.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+.music-custom {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.music-custom input {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 11px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.music-custom input:focus {
+  border-color: var(--primary);
+}
+
+.music-custom input::placeholder {
+  color: #999;
+}
+
+.play-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  background: var(--primary);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.play-btn:hover {
+  background: var(--primary-hover);
+}
+
+.music-player {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.music-player iframe {
+  display: block;
+}

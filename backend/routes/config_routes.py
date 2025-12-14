@@ -1,10 +1,10 @@
 """
-配置管理相关 API 路由
+設定管理相關 API 路由
 
 包含功能：
-- 获取当前配置
-- 更新配置
-- 测试服务商连接
+- 取得目前設定
+- 更新設定
+- 測試服務商連線
 """
 
 import logging
@@ -15,37 +15,37 @@ from .utils import prepare_providers_for_response
 
 logger = logging.getLogger(__name__)
 
-# 配置文件路径
+# 設定檔路徑
 CONFIG_DIR = Path(__file__).parent.parent.parent
 IMAGE_CONFIG_PATH = CONFIG_DIR / 'image_providers.yaml'
 TEXT_CONFIG_PATH = CONFIG_DIR / 'text_providers.yaml'
 
 
 def create_config_blueprint():
-    """创建配置路由蓝图（工厂函数，支持多次调用）"""
+    """建立設定路由藍圖（工廠函數，支援多次呼叫）"""
     config_bp = Blueprint('config', __name__)
 
-    # ==================== 配置读写 ====================
+    # ==================== 設定讀寫 ====================
 
     @config_bp.route('/config', methods=['GET'])
     def get_config():
         """
-        获取当前配置
+        取得目前設定
 
-        返回：
+        回傳：
         - success: 是否成功
-        - config: 配置对象
-          - text_generation: 文本生成配置
-          - image_generation: 图片生成配置
+        - config: 設定物件
+          - text_generation: 文字生成設定
+          - image_generation: 圖片生成設定
         """
         try:
-            # 读取图片生成配置
+            # 讀取圖片生成設定
             image_config = _read_config(IMAGE_CONFIG_PATH, {
                 'active_provider': 'google_genai',
                 'providers': {}
             })
 
-            # 读取文本生成配置
+            # 讀取文字生成設定
             text_config = _read_config(TEXT_CONFIG_PATH, {
                 'active_provider': 'google_gemini',
                 'providers': {}
@@ -72,70 +72,70 @@ def create_config_blueprint():
         except Exception as e:
             return jsonify({
                 "success": False,
-                "error": f"获取配置失败: {str(e)}"
+                "error": f"取得設定失敗: {str(e)}"
             }), 500
 
     @config_bp.route('/config', methods=['POST'])
     def update_config():
         """
-        更新配置
+        更新設定
 
-        请求体：
-        - image_generation: 图片生成配置（可选）
-        - text_generation: 文本生成配置（可选）
+        請求內容：
+        - image_generation: 圖片生成設定（可選）
+        - text_generation: 文字生成設定（可選）
 
-        返回：
+        回傳：
         - success: 是否成功
-        - message: 结果消息
+        - message: 結果訊息
         """
         try:
             data = request.get_json()
 
-            # 更新图片生成配置
+            # 更新圖片生成設定
             if 'image_generation' in data:
                 _update_provider_config(
                     IMAGE_CONFIG_PATH,
                     data['image_generation']
                 )
 
-            # 更新文本生成配置
+            # 更新文字生成設定
             if 'text_generation' in data:
                 _update_provider_config(
                     TEXT_CONFIG_PATH,
                     data['text_generation']
                 )
 
-            # 清除配置缓存，确保下次使用时读取新配置
+            # 清除設定快取，確保下次使用時讀取新設定
             _clear_config_cache()
 
             return jsonify({
                 "success": True,
-                "message": "配置已保存"
+                "message": "設定已儲存"
             })
 
         except Exception as e:
             return jsonify({
                 "success": False,
-                "error": f"更新配置失败: {str(e)}"
+                "error": f"更新設定失敗: {str(e)}"
             }), 500
 
-    # ==================== 连接测试 ====================
+    # ==================== 連線測試 ====================
 
     @config_bp.route('/config/test', methods=['POST'])
     def test_connection():
         """
-        测试服务商连接
+        測試服務商連線
 
-        请求体：
-        - type: 服务商类型（google_genai/google_gemini/openai_compatible/image_api）
-        - provider_name: 服务商名称（用于从配置读取 API Key）
-        - api_key: API Key（可选，若不提供则从配置读取）
-        - base_url: Base URL（可选）
-        - model: 模型名称（可选）
+        請求內容：
+        - type: 服務商類型（google_genai/google_gemini/openai_compatible/image_api）
+        - provider_name: 服務商名稱（用於從設定讀取 API Key）
+        - api_key: API Key（可選，若不提供則從設定讀取）
+        - base_url: Base URL（可選）
+        - model: 模型名稱（可選）
 
-        返回：
+        回傳：
         - success: 是否成功
-        - message: 测试结果消息
+        - message: 測試結果訊息
         """
         try:
             data = request.get_json()
@@ -143,23 +143,23 @@ def create_config_blueprint():
             provider_name = data.get('provider_name')
 
             if not provider_type:
-                return jsonify({"success": False, "error": "缺少 type 参数"}), 400
+                return jsonify({"success": False, "error": "缺少 type 參數"}), 400
 
-            # 构建配置
+            # 建立設定
             config = {
                 'api_key': data.get('api_key'),
                 'base_url': data.get('base_url'),
                 'model': data.get('model')
             }
 
-            # 如果没有提供 api_key，从配置文件读取
+            # 如果沒有提供 api_key，從設定檔讀取
             if not config['api_key'] and provider_name:
                 config = _load_provider_config(provider_type, provider_name, config)
 
             if not config['api_key']:
-                return jsonify({"success": False, "error": "API Key 未配置"}), 400
+                return jsonify({"success": False, "error": "API Key 未設定"}), 400
 
-            # 根据类型执行测试
+            # 根據類型執行測試
             result = _test_provider_connection(provider_type, config)
             return jsonify(result), 200 if result['success'] else 400
 
@@ -169,10 +169,10 @@ def create_config_blueprint():
     return config_bp
 
 
-# ==================== 辅助函数 ====================
+# ==================== 輔助函數 ====================
 
 def _read_config(path: Path, default: dict) -> dict:
-    """读取配置文件"""
+    """讀取設定檔"""
     if path.exists():
         with open(path, 'r', encoding='utf-8') as f:
             return yaml.safe_load(f) or default
@@ -180,20 +180,20 @@ def _read_config(path: Path, default: dict) -> dict:
 
 
 def _write_config(path: Path, config: dict):
-    """写入配置文件"""
+    """寫入設定檔"""
     with open(path, 'w', encoding='utf-8') as f:
         yaml.dump(config, f, allow_unicode=True, default_flow_style=False)
 
 
 def _update_provider_config(config_path: Path, new_data: dict):
     """
-    更新服务商配置
+    更新服務商設定
 
     Args:
-        config_path: 配置文件路径
-        new_data: 新的配置数据
+        config_path: 設定檔路徑
+        new_data: 新的設定資料
     """
-    # 读取现有配置
+    # 讀取現有設定
     existing_config = _read_config(config_path, {'providers': {}})
 
     # 更新 active_provider
@@ -206,25 +206,25 @@ def _update_provider_config(config_path: Path, new_data: dict):
         new_providers = new_data['providers']
 
         for name, new_provider_config in new_providers.items():
-            # 如果新配置的 api_key 是空的，保留原有的
+            # 如果新設定的 api_key 是空的，保留原有的
             if new_provider_config.get('api_key') in [True, False, '', None]:
                 if name in existing_providers and existing_providers[name].get('api_key'):
                     new_provider_config['api_key'] = existing_providers[name]['api_key']
                 else:
                     new_provider_config.pop('api_key', None)
 
-            # 移除不需要保存的字段
+            # 移除不需要儲存的欄位
             new_provider_config.pop('api_key_env', None)
             new_provider_config.pop('api_key_masked', None)
 
         existing_config['providers'] = new_providers
 
-    # 保存配置
+    # 儲存設定
     _write_config(config_path, existing_config)
 
 
 def _clear_config_cache():
-    """清除配置缓存"""
+    """清除設定快取"""
     try:
         from backend.config import Config
         Config._image_providers_config = None
@@ -240,17 +240,17 @@ def _clear_config_cache():
 
 def _load_provider_config(provider_type: str, provider_name: str, config: dict) -> dict:
     """
-    从配置文件加载服务商配置
+    從設定檔載入服務商設定
 
     Args:
-        provider_type: 服务商类型
-        provider_name: 服务商名称
-        config: 当前配置（会被合并）
+        provider_type: 服務商類型
+        provider_name: 服務商名稱
+        config: 目前設定（會被合併）
 
     Returns:
-        dict: 合并后的配置
+        dict: 合併後的設定
     """
-    # 确定配置文件路径
+    # 確定設定檔路徑
     if provider_type in ['openai_compatible', 'google_gemini']:
         config_path = TEXT_CONFIG_PATH
     else:
@@ -275,16 +275,16 @@ def _load_provider_config(provider_type: str, provider_name: str, config: dict) 
 
 def _test_provider_connection(provider_type: str, config: dict) -> dict:
     """
-    测试服务商连接
+    測試服務商連線
 
     Args:
-        provider_type: 服务商类型
-        config: 服务商配置
+        provider_type: 服務商類型
+        config: 服務商設定
 
     Returns:
-        dict: 测试结果
+        dict: 測試結果
     """
-    test_prompt = "请回复'你好，红墨'"
+    test_prompt = "請回覆'你好'"
 
     if provider_type == 'google_genai':
         return _test_google_genai(config)
@@ -299,11 +299,11 @@ def _test_provider_connection(provider_type: str, config: dict) -> dict:
         return _test_image_api(config)
 
     else:
-        raise ValueError(f"不支持的类型: {provider_type}")
+        raise ValueError(f"不支援的類型: {provider_type}")
 
 
 def _test_google_genai(config: dict) -> dict:
-    """测试 Google GenAI 图片生成服务"""
+    """測試 Google GenAI 圖片生成服務"""
     from google import genai
 
     if config.get('base_url'):
@@ -315,24 +315,24 @@ def _test_google_genai(config: dict) -> dict:
             },
             vertexai=False
         )
-        # 测试列出模型
+        # 測試列出模型
         try:
             list(client.models.list())
             return {
                 "success": True,
-                "message": "连接成功！仅代表连接稳定，不确定是否可以稳定支持图片生成"
+                "message": "連線成功！僅代表連線穩定，不確定是否可以穩定支援圖片生成"
             }
         except Exception as e:
-            raise Exception(f"连接测试失败: {str(e)}")
+            raise Exception(f"連線測試失敗: {str(e)}")
     else:
         return {
             "success": True,
-            "message": "Vertex AI 无法通过 API Key 测试连接（需要 OAuth2 认证）。请在实际生成图片时验证配置是否正确。"
+            "message": "Vertex AI 無法透過 API Key 測試連線（需要 OAuth2 認證）。請在實際生成圖片時驗證設定是否正確。"
         }
 
 
 def _test_google_gemini(config: dict, test_prompt: str) -> dict:
-    """测试 Google Gemini 文本生成服务"""
+    """測試 Google Gemini 文字生成服務"""
     from google import genai
 
     if config.get('base_url'):
@@ -361,7 +361,7 @@ def _test_google_gemini(config: dict, test_prompt: str) -> dict:
 
 
 def _test_openai_compatible(config: dict, test_prompt: str) -> dict:
-    """测试 OpenAI 兼容接口"""
+    """測試 OpenAI 相容介面"""
     import requests
 
     base_url = config['base_url'].rstrip('/').rstrip('/v1') if config.get('base_url') else 'https://api.openai.com'
@@ -393,7 +393,7 @@ def _test_openai_compatible(config: dict, test_prompt: str) -> dict:
 
 
 def _test_image_api(config: dict) -> dict:
-    """测试图片 API 连接"""
+    """測試圖片 API 連線"""
     import requests
 
     base_url = config['base_url'].rstrip('/').rstrip('/v1') if config.get('base_url') else 'https://api.openai.com'
@@ -408,21 +408,21 @@ def _test_image_api(config: dict) -> dict:
     if response.status_code == 200:
         return {
             "success": True,
-            "message": "连接成功！仅代表连接稳定，不确定是否可以稳定支持图片生成"
+            "message": "連線成功！僅代表連線穩定，不確定是否可以穩定支援圖片生成"
         }
     else:
         raise Exception(f"HTTP {response.status_code}: {response.text[:200]}")
 
 
 def _check_response(result_text: str) -> dict:
-    """检查响应是否符合预期"""
-    if "你好" in result_text and "红墨" in result_text:
+    """檢查回應是否符合預期"""
+    if "你好" in result_text:
         return {
             "success": True,
-            "message": f"连接成功！响应: {result_text[:100]}"
+            "message": f"連線成功！回應: {result_text[:100]}"
         }
     else:
         return {
             "success": True,
-            "message": f"连接成功，但响应内容不符合预期: {result_text[:100]}"
+            "message": f"連線成功，但回應內容不符合預期: {result_text[:100]}"
         }

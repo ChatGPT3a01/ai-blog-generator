@@ -30,15 +30,19 @@ export interface FinishEvent {
   images: string[]
 }
 
-// 生成大纲（支持图片上传）
+// 生成大纲（支持图片上传和文字風格）
 export async function generateOutline(
   topic: string,
-  images?: File[]
+  images?: File[],
+  textStyle?: string
 ): Promise<OutlineResponse & { has_images?: boolean }> {
   // 如果有图片，使用 FormData
   if (images && images.length > 0) {
     const formData = new FormData()
     formData.append('topic', topic)
+    if (textStyle) {
+      formData.append('text_style', textStyle)
+    }
     images.forEach((file) => {
       formData.append('images', file)
     })
@@ -57,7 +61,8 @@ export async function generateOutline(
 
   // 无图片，使用 JSON
   const response = await axios.post<OutlineResponse>(`${API_BASE_URL}/outline`, {
-    topic
+    topic,
+    text_style: textStyle || 'professional'
   })
   return response.data
 }
@@ -297,7 +302,8 @@ export async function generateImagesPost(
   onFinish: (event: FinishEvent) => void,
   onStreamError: (error: Error) => void,
   userImages?: File[],
-  userTopic?: string
+  userTopic?: string,
+  imageStyle?: string
 ) {
   try {
     // 将用户图片转换为 base64
@@ -325,7 +331,8 @@ export async function generateImagesPost(
         task_id: taskId,
         full_outline: fullOutline,
         user_images: userImagesBase64.length > 0 ? userImagesBase64 : undefined,
-        user_topic: userTopic || ''
+        user_topic: userTopic || '',
+        image_style: imageStyle || 'flat'
       })
     })
 
@@ -433,7 +440,7 @@ export async function updateConfig(config: Partial<Config>): Promise<{
   return response.data
 }
 
-// 测试服务商连接
+// 測試服務商連線
 export async function testConnection(config: {
   type: string
   provider_name?: string
@@ -446,5 +453,125 @@ export async function testConnection(config: {
   error?: string
 }> {
   const response = await axios.post(`${API_BASE_URL}/config/test`, config)
+  return response.data
+}
+
+// ==================== Blogger 發布 API ====================
+
+export interface BlogInfo {
+  id: string
+  name: string
+  url: string
+}
+
+// 取得使用者的部落格清單
+export async function getBloggerBlogs(accessToken: string): Promise<{
+  success: boolean
+  blogs?: BlogInfo[]
+  error?: string
+}> {
+  const response = await axios.post(`${API_BASE_URL}/blogger/blogs`, {
+    access_token: accessToken
+  })
+  return response.data
+}
+
+// 發布文章到 Blogger
+export async function publishToBlogger(params: {
+  accessToken: string
+  blogId: string
+  title: string
+  outline: string
+  images: string[]
+  labels?: string[]
+  isDraft?: boolean
+}): Promise<{
+  success: boolean
+  post_url?: string
+  post_id?: string
+  message?: string
+  error?: string
+}> {
+  const response = await axios.post(`${API_BASE_URL}/blogger/publish`, {
+    access_token: params.accessToken,
+    blog_id: params.blogId,
+    title: params.title,
+    outline: params.outline,
+    images: params.images,
+    labels: params.labels || [],
+    is_draft: params.isDraft || false
+  })
+  return response.data
+}
+
+// ==================== 圖片上傳 API ====================
+
+// 取得上傳配置狀態
+export async function getUploadConfig(): Promise<{
+  success: boolean
+  has_imgbb_key?: boolean
+  error?: string
+}> {
+  const response = await axios.get(`${API_BASE_URL}/upload/config`)
+  return response.data
+}
+
+// 更新上傳配置
+export async function updateUploadConfig(imgbbApiKey: string): Promise<{
+  success: boolean
+  message?: string
+  error?: string
+}> {
+  const response = await axios.post(`${API_BASE_URL}/upload/config`, {
+    imgbb_api_key: imgbbApiKey
+  })
+  return response.data
+}
+
+// 上傳單張圖片到 ImgBB
+export async function uploadToImgBB(params: {
+  taskId: string
+  filename: string
+}): Promise<{
+  success: boolean
+  url?: string
+  display_url?: string
+  delete_url?: string
+  thumb_url?: string
+  error?: string
+}> {
+  const response = await axios.post(`${API_BASE_URL}/upload/imgbb`, {
+    task_id: params.taskId,
+    filename: params.filename
+  })
+  return response.data
+}
+
+// 批量上傳圖片到 ImgBB
+export async function batchUploadToImgBB(images: {
+  taskId: string
+  filename: string
+  index: number
+}[]): Promise<{
+  success: boolean
+  total?: number
+  uploaded?: number
+  failed?: number
+  results?: {
+    index: number
+    success: boolean
+    url?: string
+    display_url?: string
+    error?: string
+  }[]
+  error?: string
+}> {
+  const response = await axios.post(`${API_BASE_URL}/upload/batch`, {
+    images: images.map(img => ({
+      task_id: img.taskId,
+      filename: img.filename,
+      index: img.index
+    }))
+  })
   return response.data
 }

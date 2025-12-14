@@ -16,7 +16,7 @@
         <div class="section-header">
           <div>
             <h2 class="section-title">文字生成設定</h2>
-            <p class="section-desc">用於生成小紅書圖文大綱</p>
+            <p class="section-desc">用於生成部落格圖文大綱</p>
           </div>
           <button class="btn btn-small" @click="openAddTextModal">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -43,7 +43,7 @@
         <div class="section-header">
           <div>
             <h2 class="section-title">圖片生成設定</h2>
-            <p class="section-desc">用於生成小紅書配圖</p>
+            <p class="section-desc">用於生成部落格配圖</p>
           </div>
           <button class="btn btn-small" @click="openAddImageModal">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -63,6 +63,47 @@
           @delete="deleteImageProvider"
           @test="testImageProviderInList"
         />
+      </div>
+
+      <!-- 圖床設定 -->
+      <div class="card">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">圖床設定 (ImgBB)</h2>
+            <p class="section-desc">用於上傳圖片到圖床，取得公開 URL 以便發布到 Blogger</p>
+          </div>
+        </div>
+
+        <div class="imgbb-config">
+          <div class="form-group">
+            <label class="form-label">ImgBB API Key</label>
+            <div style="display: flex; gap: 12px;">
+              <input
+                type="password"
+                v-model="imgbbApiKey"
+                placeholder="請輸入 ImgBB API Key"
+                class="form-input"
+                style="flex: 1;"
+              />
+              <button
+                class="btn btn-primary"
+                @click="saveImgBBConfig"
+                :disabled="savingImgBB"
+              >
+                {{ savingImgBB ? '儲存中...' : '儲存' }}
+              </button>
+            </div>
+            <p class="form-hint">
+              <a href="https://api.imgbb.com/" target="_blank" style="color: var(--primary);">
+                點此前往 ImgBB 取得免費 API Key
+              </a>
+            </p>
+          </div>
+
+          <div v-if="hasImgBBKey" class="status-success">
+            已設定 API Key
+          </div>
+        </div>
       </div>
     </div>
 
@@ -96,7 +137,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import ProviderTable from '../components/settings/ProviderTable.vue'
 import ProviderModal from '../components/settings/ProviderModal.vue'
 import ImageProviderModal from '../components/settings/ImageProviderModal.vue'
@@ -105,6 +146,7 @@ import {
   textTypeOptions,
   imageTypeOptions
 } from '../composables/useProviderForm'
+import { getUploadConfig, updateUploadConfig } from '../api'
 
 /**
  * 系統設定頁面
@@ -113,7 +155,47 @@ import {
  * - 管理文字生成供應商設定
  * - 管理圖片生成供應商設定
  * - 測試 API 連線
+ * - 管理 ImgBB 圖床設定
  */
+
+// ImgBB 配置狀態
+const imgbbApiKey = ref('')
+const hasImgBBKey = ref(false)
+const savingImgBB = ref(false)
+
+// 載入 ImgBB 配置
+async function loadImgBBConfig() {
+  try {
+    const result = await getUploadConfig()
+    hasImgBBKey.value = result.has_imgbb_key || false
+  } catch (e) {
+    console.error('載入 ImgBB 配置失敗:', e)
+  }
+}
+
+// 儲存 ImgBB 配置
+async function saveImgBBConfig() {
+  if (!imgbbApiKey.value.trim()) {
+    alert('請輸入 API Key')
+    return
+  }
+
+  savingImgBB.value = true
+  try {
+    const result = await updateUploadConfig(imgbbApiKey.value.trim())
+    if (result.success) {
+      hasImgBBKey.value = true
+      imgbbApiKey.value = ''
+      alert('ImgBB API Key 已儲存')
+    } else {
+      alert('儲存失敗: ' + (result.error || '未知錯誤'))
+    }
+  } catch (e: any) {
+    alert('儲存失敗: ' + e.message)
+  } finally {
+    savingImgBB.value = false
+  }
+}
 
 // 使用 composable 管理表單狀態和邏輯
 const {
@@ -164,6 +246,7 @@ const {
 
 onMounted(() => {
   loadConfig()
+  loadImgBBConfig()
 })
 </script>
 
@@ -210,5 +293,52 @@ onMounted(() => {
   justify-content: center;
   padding: 80px 20px;
   color: #666;
+}
+
+/* ImgBB 配置區 */
+.imgbb-config {
+  padding-top: 8px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.form-input {
+  padding: 10px 14px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.form-hint {
+  font-size: 12px;
+  color: #888;
+  margin-top: 8px;
+}
+
+.status-success {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #dcfce7;
+  color: #16a34a;
+  border-radius: 6px;
+  font-size: 13px;
 }
 </style>

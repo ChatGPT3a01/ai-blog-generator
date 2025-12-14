@@ -50,6 +50,7 @@ def create_image_blueprint():
             task_id = data.get('task_id')
             full_outline = data.get('full_outline', '')
             user_topic = data.get('user_topic', '')
+            image_style = data.get('image_style', 'flat')
 
             # 解析 base64 格式的用户参考图片
             user_images = _parse_base64_images(data.get('user_images', []))
@@ -58,7 +59,8 @@ def create_image_blueprint():
                 'pages_count': len(pages) if pages else 0,
                 'task_id': task_id,
                 'user_topic': user_topic[:50] if user_topic else None,
-                'user_images': user_images
+                'user_images': user_images,
+                'image_style': image_style
             })
 
             if not pages:
@@ -68,7 +70,7 @@ def create_image_blueprint():
                     "error": "参数错误：pages 不能为空。\n请提供要生成的页面列表数据。"
                 }), 400
 
-            logger.info(f"🖼️  开始图片生成任务: {task_id}, 共 {len(pages)} 页")
+            logger.info(f"🖼️  开始图片生成任务: {task_id}, 共 {len(pages)} 页, 風格: {image_style}")
             image_service = get_image_service()
 
             def generate():
@@ -76,7 +78,8 @@ def create_image_blueprint():
                 for event in image_service.generate_images(
                     pages, task_id, full_outline,
                     user_images=user_images if user_images else None,
-                    user_topic=user_topic
+                    user_topic=user_topic,
+                    image_style=image_style
                 ):
                     event_type = event["event"]
                     event_data = event["data"]

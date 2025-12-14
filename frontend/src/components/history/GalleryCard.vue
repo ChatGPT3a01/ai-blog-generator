@@ -1,7 +1,7 @@
 <template>
-  <!-- 历史记录卡片 -->
+  <!-- 歷史記錄卡片 -->
   <div class="gallery-card">
-    <!-- 封面区域 -->
+    <!-- 封面區域 -->
     <div class="card-cover" @click="$emit('preview', record.id)">
       <img
         v-if="record.thumbnail && record.task_id"
@@ -14,23 +14,23 @@
         <span>{{ record.title.charAt(0) }}</span>
       </div>
 
-      <!-- 悬浮操作按钮 -->
+      <!-- 懸浮操作按鈕 -->
       <div class="card-overlay">
         <button class="overlay-btn" @click.stop="$emit('preview', record.id)">
-          预览
+          預覽
         </button>
         <button class="overlay-btn primary" @click.stop="$emit('edit', record.id)">
-          编辑
+          編輯
         </button>
       </div>
 
-      <!-- 状态标识 -->
+      <!-- 狀態標識 -->
       <div class="status-badge" :class="record.status">
         {{ statusText }}
       </div>
     </div>
 
-    <!-- 底部信息 -->
+    <!-- 底部資訊 -->
     <div class="card-footer">
       <div class="card-title" :title="record.title">{{ record.title }}</div>
       <div class="card-meta">
@@ -55,13 +55,13 @@
 import { computed } from 'vue'
 
 /**
- * 历史记录卡片组件
+ * 歷史記錄卡片元件
  *
- * 展示单个历史记录的封面、标题、状态等信息
- * 支持预览、编辑、删除操作
+ * 展示單個歷史記錄的封面、標題、狀態等資訊
+ * 支持預覽、編輯、刪除操作
  */
 
-// 定义记录类型
+// 定義記錄類型
 interface Record {
   id: string
   title: string
@@ -72,12 +72,12 @@ interface Record {
   task_id?: string
 }
 
-// 定义 Props
+// 定義 Props
 const props = defineProps<{
   record: Record
 }>()
 
-// 定义 Emits
+// 定義 Emits
 defineEmits<{
   (e: 'preview', id: string): void
   (e: 'edit', id: string): void
@@ -85,7 +85,7 @@ defineEmits<{
 }>()
 
 /**
- * 获取状态文本
+ * 取得狀態文字
  */
 const statusText = computed(() => {
   const map: Record<string, string> = {
@@ -124,7 +124,7 @@ const formattedDate = computed(() => {
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
 }
 
-/* 封面区域 */
+/* 封面區域 */
 .card-cover {
   aspect-ratio: 3/4;
   background: #f7f7f7;
@@ -146,7 +146,7 @@ const formattedDate = computed(() => {
   transform: scale(1.05) translateZ(0);
 }
 
-/* 封面占位符 */
+/* 封面佔位符 */
 .cover-placeholder {
   width: 100%;
   height: 100%;
@@ -159,7 +159,7 @@ const formattedDate = computed(() => {
   background: #fafafa;
 }
 
-/* 悬浮遮罩层 */
+/* 懸浮遮罩層 */
 .card-overlay {
   position: absolute;
   inset: 0;
@@ -181,7 +181,7 @@ const formattedDate = computed(() => {
   pointer-events: auto;
 }
 
-/* 遮罩层按钮 */
+/* 遮罩層按鈕 */
 .overlay-btn {
   padding: 8px 24px;
   border-radius: 100px;
@@ -210,7 +210,7 @@ const formattedDate = computed(() => {
   color: white;
 }
 
-/* 状态标识 */
+/* 狀態標識 */
 .status-badge {
   position: absolute;
   top: 12px;
@@ -236,7 +236,7 @@ const formattedDate = computed(() => {
   background: rgba(24, 144, 255, 0.9);
 }
 
-/* 底部区域 */
+/* 底部區域 */
 .card-footer {
   padding: 16px;
 }

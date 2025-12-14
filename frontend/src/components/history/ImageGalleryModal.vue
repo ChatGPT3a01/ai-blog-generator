@@ -1,11 +1,11 @@
 <template>
-  <!-- 图片画廊模态框 -->
+  <!-- 圖片畫廊模態框 -->
   <div v-if="visible && record" class="modal-fullscreen" @click="$emit('close')">
     <div class="modal-body" @click.stop>
-      <!-- 头部区域 -->
+      <!-- 頭部區域 -->
       <div class="modal-header">
         <div style="flex: 1;">
-          <!-- 标题区域 -->
+          <!-- 標題區域 -->
           <div class="title-section">
             <h3
               class="modal-title"
@@ -18,16 +18,16 @@
               class="title-expand-btn"
               @click="titleExpanded = !titleExpanded"
             >
-              {{ titleExpanded ? '收起' : '展开' }}
+              {{ titleExpanded ? '收起' : '展開' }}
             </button>
           </div>
 
           <div class="modal-meta">
-            <span>{{ record.outline.pages.length }} 张图片 · {{ formattedDate }}</span>
+            <span>{{ record.outline.pages.length }} 張圖片 · {{ formattedDate }}</span>
             <button
               class="view-outline-btn"
               @click="$emit('showOutline')"
-              title="查看完整大纲"
+              title="查看完整大綱"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -35,7 +35,7 @@
                 <line x1="16" y1="13" x2="8" y2="13"></line>
                 <line x1="16" y1="17" x2="8" y2="17"></line>
               </svg>
-              查看大纲
+              查看大綱
             </button>
           </div>
         </div>
@@ -47,13 +47,13 @@
               <polyline points="7 10 12 15 17 10"></polyline>
               <line x1="12" y1="15" x2="12" y2="3"></line>
             </svg>
-            打包下载
+            打包下載
           </button>
           <button class="close-icon" @click="$emit('close')">×</button>
         </div>
       </div>
 
-      <!-- 图片网格 -->
+      <!-- 圖片網格 -->
       <div class="modal-gallery-grid">
         <div
           v-for="(img, idx) in record.images.generated"
@@ -80,7 +80,7 @@
                   <path d="M23 4v6h-6"></path>
                   <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
                 </svg>
-                {{ regeneratingImages.has(idx) ? '重绘中...' : '重新生成' }}
+                {{ regeneratingImages.has(idx) ? '重繪中...' : '重新生成' }}
               </button>
             </div>
           </div>
@@ -93,7 +93,7 @@
               class="download-link"
               @click="$emit('download', img, idx)"
             >
-              下载
+              下載
             </span>
           </div>
         </div>
@@ -106,16 +106,16 @@
 import { ref, computed } from 'vue'
 
 /**
- * 图片画廊模态框组件
+ * 圖片畫廊模態框元件
  *
  * 功能：
- * - 展示历史记录的所有生成图片
- * - 支持重新生成单张图片
- * - 支持下载单张/全部图片
- * - 可展开查看完整大纲
+ * - 展示歷史記錄的所有生成圖片
+ * - 支持重新生成單張圖片
+ * - 支持下載單張/全部圖片
+ * - 可展開查看完整大綱
  */
 
-// 定义记录类型
+// 定義記錄類型
 interface ViewingRecord {
   id: string
   title: string
@@ -130,14 +130,14 @@ interface ViewingRecord {
   }
 }
 
-// 定义 Props
+// 定義 Props
 const props = defineProps<{
   visible: boolean
   record: ViewingRecord | null
   regeneratingImages: Set<number>
 }>()
 
-// 定义 Emits
+// 定義 Emits
 defineEmits<{
   (e: 'close'): void
   (e: 'showOutline'): void
@@ -146,7 +146,7 @@ defineEmits<{
   (e: 'regenerate', index: number): void
 }>()
 
-// 标题展开状态
+// 標題展開狀態
 const titleExpanded = ref(false)
 
 // 格式化日期
@@ -158,7 +158,7 @@ const formattedDate = computed(() => {
 </script>
 
 <style scoped>
-/* 全屏模态框遮罩 */
+/* 全螢幕模態框遮罩 */
 .modal-fullscreen {
   position: fixed;
   inset: 0;
@@ -170,7 +170,7 @@ const formattedDate = computed(() => {
   padding: 40px;
 }
 
-/* 模态框主体 */
+/* 模態框主體 */
 .modal-body {
   background: white;
   width: 100%;
@@ -182,7 +182,7 @@ const formattedDate = computed(() => {
   overflow: hidden;
 }
 
-/* 头部区域 */
+/* 頭部區域 */
 .modal-header {
   padding: 20px;
   border-bottom: 1px solid #eee;
@@ -193,7 +193,7 @@ const formattedDate = computed(() => {
   gap: 20px;
 }
 
-/* 标题区域 */
+/* 標題區域 */
 .title-section {
   display: flex;
   align-items: flex-start;
@@ -248,7 +248,7 @@ const formattedDate = computed(() => {
   margin-top: 8px;
 }
 
-/* 查看大纲按钮 */
+/* 查看大綱按鈕 */
 .view-outline-btn {
   display: flex;
   align-items: center;
@@ -269,7 +269,7 @@ const formattedDate = computed(() => {
   border-color: var(--primary, #ff2442);
 }
 
-/* 头部操作区 */
+/* 頭部操作區 */
 .header-actions {
   display: flex;
   gap: 12px;
@@ -298,7 +298,7 @@ const formattedDate = computed(() => {
   color: #333;
 }
 
-/* 图片网格 */
+/* 圖片網格 */
 .modal-gallery-grid {
   flex: 1;
   overflow-y: auto;
@@ -308,13 +308,13 @@ const formattedDate = computed(() => {
   gap: 20px;
 }
 
-/* 单个图片项 */
+/* 單個圖片項 */
 .modal-img-item {
   display: flex;
   flex-direction: column;
 }
 
-/* 图片预览容器 */
+/* 圖片預覽容器 */
 .modal-img-preview {
   position: relative;
   width: 100%;
@@ -330,7 +330,7 @@ const formattedDate = computed(() => {
   object-fit: cover;
 }
 
-/* 悬浮遮罩 */
+/* 懸浮遮罩 */
 .modal-img-overlay {
   position: absolute;
   top: 0;
@@ -352,7 +352,7 @@ const formattedDate = computed(() => {
   pointer-events: auto;
 }
 
-/* 重绘中状态 */
+/* 重繪中狀態 */
 .modal-img-preview.regenerating .modal-img-overlay {
   opacity: 1;
   pointer-events: auto;
@@ -368,7 +368,7 @@ const formattedDate = computed(() => {
   }
 }
 
-/* 遮罩层按钮 */
+/* 遮罩層按鈕 */
 .modal-overlay-btn {
   display: flex;
   align-items: center;
@@ -409,7 +409,7 @@ const formattedDate = computed(() => {
   font-size: 14px;
 }
 
-/* 图片底部信息 */
+/* 圖片底部資訊 */
 .img-footer {
   margin-top: 8px;
   display: flex;
@@ -428,7 +428,7 @@ const formattedDate = computed(() => {
   opacity: 0.7;
 }
 
-/* 响应式 */
+/* 響應式 */
 @media (max-width: 768px) {
   .modal-fullscreen {
     padding: 20px;

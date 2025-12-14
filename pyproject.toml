@@ -1,7 +1,7 @@
 [project]
-name = "xiaohongshu-generator"
+name = "blog-image-generator"
 version = "0.1.0"
-description = "小红书图文生成器"
+description = "AI 部落格圖文生成器"
 requires-python = ">=3.11"
 dependencies = [
     "flask>=3.0.0",

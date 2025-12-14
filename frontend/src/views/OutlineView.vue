@@ -16,6 +16,25 @@
       </div>
     </div>
 
+    <!-- 圖片風格選擇區域 -->
+    <div class="image-style-section" style="max-width: 1200px; margin: 0 auto 24px auto; padding: 0 20px;">
+      <div class="style-selector-card">
+        <label class="style-label">選擇圖片風格</label>
+        <div class="style-chips">
+          <button
+            v-for="style in imageStyles"
+            :key="style.id"
+            class="style-chip"
+            :class="{ active: selectedImageStyle === style.id }"
+            @click="selectedImageStyle = style.id"
+            :title="style.description"
+          >
+            {{ style.icon }} {{ style.name }}
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div class="outline-grid">
       <div 
         v-for="(page, idx) in store.outline.pages" 
@@ -78,6 +97,21 @@ const store = useGeneratorStore()
 const dragOverIndex = ref<number | null>(null)
 const draggedIndex = ref<number | null>(null)
 
+// 圖片風格定義
+const imageStyles = [
+  { id: 'tech', name: '科技未來', icon: '🔮', description: '藍色調、霓虹光、未來感介面、AI 科技視覺' },
+  { id: 'flat', name: '扁平插畫', icon: '🎨', description: 'Flat Design、顏色簡單、親和不壓迫' },
+  { id: 'minimal', name: '極簡留白', icon: '⬜', description: '大量留白、單一主體、高級感、穩定感' },
+  { id: 'photo', name: '寫實攝影', icon: '📷', description: '像真實照片、自然光、情境感強' },
+  { id: 'sketch', name: '手繪筆記', icon: '✏️', description: '手寫線條、像白板或筆記本、有學習感' },
+  { id: 'infographic', name: '資訊圖表', icon: '📊', description: '圖像＋文字區塊、結構清楚、適合教學' },
+  { id: 'cinematic', name: '故事情境', icon: '🎬', description: '有場景、有情緒、像一幕電影畫面' },
+  { id: 'brand', name: '品牌一致', icon: '🏷️', description: '固定配色、固定構圖、一看就知道是你' }
+]
+
+// 選中的圖片風格
+const selectedImageStyle = ref('flat')
+
 const getPageTypeName = (type: string) => {
   const names = {
     cover: '封面',
@@ -128,6 +162,8 @@ const goBack = () => {
 }
 
 const startGeneration = () => {
+  // 將圖片風格存到 store
+  store.imageStyle = selectedImageStyle.value
   router.push('/generate')
 }
 </script>
@@ -283,5 +319,50 @@ const startGeneration = () => {
   font-size: 32px;
   font-weight: 300;
   margin-bottom: 8px;
+}
+
+/* 圖片風格選擇區域 */
+.style-selector-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.style-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-main, #333);
+  margin-bottom: 12px;
+  display: block;
+}
+
+.style-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.style-chip {
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1px solid #e0e0e0;
+  background: #fafafa;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--text-main, #333);
+}
+
+.style-chip:hover {
+  border-color: var(--primary, #ff2442);
+  background: #fff;
+}
+
+.style-chip.active {
+  border-color: var(--primary, #ff2442);
+  background: rgba(255, 36, 66, 0.1);
+  color: var(--primary, #ff2442);
+  font-weight: 500;
 }
 </style>

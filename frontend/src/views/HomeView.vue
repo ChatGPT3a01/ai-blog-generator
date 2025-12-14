@@ -1,20 +1,30 @@
 <template>
   <div class="container home-container">
+    <!-- 浮動泡泡背景層 -->
+    <div class="bubbles-container bubbles-back">
+      <div class="bubble" v-for="i in 25" :key="'back-'+i" :style="getBubbleStyle(i, false)"></div>
+    </div>
+
     <!-- 圖片網格輪播背景 -->
     <ShowcaseBackground />
+
+    <!-- 浮動泡泡前景層 -->
+    <div class="bubbles-container bubbles-front">
+      <div class="bubble" v-for="i in 15" :key="'front-'+i" :style="getBubbleStyle(i, true)"></div>
+    </div>
 
     <!-- Hero Area -->
     <div class="hero-section">
       <div class="hero-content">
         <div class="brand-pill">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
-          AI 驅動的部落格創作助手
+          亮言AI驅動部落格：一鍵成仙
         </div>
         <div class="platform-slogan">
-          讓創作不再有門檻，讓寫作從未如此簡單
+          讓意念轉化為文字，讓思想刻劃於永恆
         </div>
-        <h1 class="page-title">靈感一觸即發</h1>
-        <p class="page-subtitle">輸入你的創意主題，讓 AI 幫你生成精彩標題、內文和配圖</p>
+        <h1 class="page-title">文思泉湧的氾濫</h1>
+        <p class="page-subtitle">輸入你的思想，讓 亮言AI 幫你生成精彩標題、內文和配圖，並且一鍵即上部落格</p>
       </div>
 
       <!-- 主題輸入組合框 -->
@@ -30,10 +40,10 @@
     <!-- 版權資訊 -->
     <div class="page-footer">
       <div class="footer-copyright">
-        © 2025 AI 圖文生成器 - 部落格文章一鍵生成
+        © 2026 亮言AI - 部落格文章一鍵生成
       </div>
       <div class="footer-license">
-        Built with <a href="https://github.com/features/copilot" target="_blank" rel="noopener noreferrer">GitHub Copilot</a> | Licensed under <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer">MIT License</a>
+        阿亮老師
       </div>
     </div>
 
@@ -67,6 +77,49 @@ const composerRef = ref<InstanceType<typeof ComposerInput> | null>(null)
 // 上傳的圖片檔案
 const uploadedImageFiles = ref<File[]>([])
 
+// 泡泡顏色陣列（更鮮豔）
+const bubbleColors = [
+  'rgba(255, 107, 129, 0.6)',  // 粉紅
+  'rgba(108, 92, 231, 0.6)',   // 紫色
+  'rgba(0, 184, 148, 0.6)',    // 綠色
+  'rgba(253, 203, 110, 0.6)',  // 黃色
+  'rgba(74, 144, 226, 0.6)',   // 藍色
+  'rgba(255, 159, 67, 0.6)',   // 橘色
+  'rgba(162, 155, 254, 0.6)',  // 淡紫
+  'rgba(129, 236, 236, 0.6)',  // 青色
+]
+
+/**
+ * 產生泡泡樣式
+ * @param index 泡泡索引
+ * @param isFront 是否為前景泡泡
+ */
+function getBubbleStyle(index: number, isFront: boolean = false) {
+  // 前景泡泡更大、更模糊
+  const baseSize = isFront ? 50 : 30
+  const sizeRange = isFront ? 100 : 80
+  const size = Math.random() * sizeRange + baseSize
+
+  const left = Math.random() * 100  // 0-100%
+  const delay = Math.random() * 6  // 0-6s delay
+  const duration = Math.random() * 5 + (isFront ? 8 : 6)  // 前景泡泡飄得慢一點
+  const color = bubbleColors[index % bubbleColors.length]
+
+  // 前景泡泡更透明，有朦朧感
+  const opacity = isFront ? 0.4 : 0.6
+  const colorWithOpacity = color.replace(/[\d.]+\)$/, `${opacity})`)
+
+  return {
+    width: `${size}px`,
+    height: `${size}px`,
+    left: `${left}%`,
+    animationDelay: `${delay}s`,
+    animationDuration: `${duration}s`,
+    background: `radial-gradient(circle at 30% 30%, rgba(255,255,255,${isFront ? 0.7 : 0.9}), ${colorWithOpacity})`,
+    filter: isFront ? 'blur(2px)' : 'none',
+  }
+}
+
 /**
  * 處理圖片變化
  */
@@ -77,7 +130,7 @@ function handleImagesChange(images: File[]) {
 /**
  * 生成大綱
  */
-async function handleGenerate() {
+async function handleGenerate(textStyle: string = 'professional') {
   if (!topic.value.trim()) return
 
   loading.value = true
@@ -88,7 +141,8 @@ async function handleGenerate() {
 
     const result = await generateOutline(
       topic.value.trim(),
-      imageFiles.length > 0 ? imageFiles : undefined
+      imageFiles.length > 0 ? imageFiles : undefined,
+      textStyle
     )
 
     if (result.success && result.pages) {
@@ -125,6 +179,71 @@ async function handleGenerate() {
   padding-top: 10px;
   position: relative;
   z-index: 1;
+}
+
+/* 泡泡容器 */
+.bubbles-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* 背景層泡泡 */
+.bubbles-back {
+  z-index: 0;
+}
+
+/* 前景層泡泡 */
+.bubbles-front {
+  z-index: 100;
+}
+
+/* 泡泡樣式 */
+.bubble {
+  position: absolute;
+  bottom: -100px;
+  border-radius: 50%;
+  opacity: 0;
+  animation: floatUp linear infinite;
+  box-shadow:
+    inset 0 -5px 20px rgba(255, 255, 255, 0.4),
+    inset 5px 0 20px rgba(255, 255, 255, 0.2),
+    0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+/* 泡泡上浮動畫（更明顯） */
+@keyframes floatUp {
+  0% {
+    bottom: -100px;
+    opacity: 0;
+    transform: scale(0.4) translateX(0);
+  }
+  10% {
+    opacity: 0.85;
+  }
+  30% {
+    opacity: 0.9;
+    transform: scale(0.9) translateX(15px);
+  }
+  50% {
+    transform: scale(1) translateX(-15px);
+  }
+  70% {
+    opacity: 0.7;
+    transform: scale(1.1) translateX(10px);
+  }
+  85% {
+    opacity: 0.3;
+  }
+  100% {
+    bottom: 110vh;
+    opacity: 0;
+    transform: scale(1.2) translateX(0);
+  }
 }
 
 /* Hero Section */

@@ -1,4 +1,4 @@
-"""OpenAI 兼容接口图片生成器"""
+"""OpenAI Compatible Image Generator"""
 import logging
 import time
 import random
@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 def retry_on_error(max_retries=5, base_delay=3):
-    """错误自动重试装饰器"""
+    """Auto retry decorator for errors"""
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -21,73 +21,73 @@ def retry_on_error(max_retries=5, base_delay=3):
                     return func(*args, **kwargs)
                 except Exception as e:
                     error_str = str(e)
-                    # 检查是否是速率限制错误
+                    # Check if rate limit error
                     if "429" in error_str or "rate" in error_str.lower():
                         if attempt < max_retries - 1:
                             wait_time = (base_delay ** attempt) + random.uniform(0, 1)
-                            logger.warning(f"遇到速率限制，{wait_time:.1f}秒后重试 (尝试 {attempt + 2}/{max_retries})")
+                            logger.warning(f"Rate limit hit, retrying in {wait_time:.1f}s (attempt {attempt + 2}/{max_retries})")
                             time.sleep(wait_time)
                             continue
-                    # 其他错误或重试耗尽
+                    # Other errors or retries exhausted
                     if attempt < max_retries - 1:
                         wait_time = 2 ** attempt
-                        logger.warning(f"请求失败: {error_str[:100]}，{wait_time}秒后重试")
+                        logger.warning(f"Request failed: {error_str[:100]}, retrying in {wait_time}s")
                         time.sleep(wait_time)
                         continue
                     raise
-            logger.error(f"图片生成失败: 重试 {max_retries} 次后仍失败")
+            logger.error(f"Image generation failed after {max_retries} retries")
             raise Exception(
-                f"图片生成失败：重试 {max_retries} 次后仍失败。\n"
-                "可能原因：\n"
-                "1. API持续限流或配额不足\n"
-                "2. 网络连接持续不稳定\n"
-                "3. API服务暂时不可用\n"
-                "建议：稍后再试，或检查API配额和网络状态"
+                f"Image generation failed after {max_retries} retries.\n"
+                "Possible causes:\n"
+                "1. API rate limit or quota exceeded\n"
+                "2. Network connection unstable\n"
+                "3. API service temporarily unavailable\n"
+                "Suggestion: Try again later, or check API quota and network status"
             )
         return wrapper
     return decorator
 
 
 class OpenAICompatibleGenerator(ImageGeneratorBase):
-    """OpenAI 兼容接口图片生成器"""
+    """OpenAI Compatible Image Generator"""
 
     def __init__(self, config: Dict[str, Any]):
         super().__init__(config)
-        logger.debug("初始化 OpenAICompatibleGenerator...")
+        logger.debug("Initializing OpenAICompatibleGenerator...")
 
         if not self.api_key:
-            logger.error("OpenAI 兼容 API Key 未配置")
+            logger.error("OpenAI Compatible API Key not configured")
             raise ValueError(
-                "OpenAI 兼容 API Key 未配置。\n"
-                "解决方案：在系统设置页面编辑该服务商，填写 API Key"
+                "OpenAI Compatible API Key not configured.\n"
+                "Solution: Edit this provider in system settings and fill in the API Key"
             )
 
         if not self.base_url:
-            logger.error("OpenAI 兼容 API Base URL 未配置")
+            logger.error("OpenAI Compatible API Base URL not configured")
             raise ValueError(
-                "OpenAI 兼容 API Base URL 未配置。\n"
-                "解决方案：在系统设置页面编辑该服务商，填写 Base URL"
+                "OpenAI Compatible API Base URL not configured.\n"
+                "Solution: Edit this provider in system settings and fill in the Base URL"
             )
 
-        # 规范化 base_url：去除末尾 /v1
+        # Normalize base_url: remove trailing /v1
         self.base_url = self.base_url.rstrip('/').rstrip('/v1')
 
-        # 默认模型
+        # Default model
         self.default_model = config.get('model', 'dall-e-3')
 
-        # API 端点类型: 支持完整路径 (如 '/v1/images/generations') 或简写 ('images', 'chat')
+        # API endpoint type: supports full path (e.g. '/v1/images/generations') or shorthand ('images', 'chat')
         endpoint_type = config.get('endpoint_type', '/v1/images/generations')
-        # 兼容旧的简写格式
+        # Compatible with old shorthand format
         if endpoint_type == 'images':
             endpoint_type = '/v1/images/generations'
         elif endpoint_type == 'chat':
             endpoint_type = '/v1/chat/completions'
         self.endpoint_type = endpoint_type
 
-        logger.info(f"OpenAICompatibleGenerator 初始化完成: base_url={self.base_url}, model={self.default_model}, endpoint={self.endpoint_type}")
+        logger.info(f"OpenAICompatibleGenerator initialized: base_url={self.base_url}, model={self.default_model}, endpoint={self.endpoint_type}")
 
     def validate_config(self) -> bool:
-        """验证配置"""
+        """Validate config"""
         return bool(self.api_key and self.base_url)
 
     @retry_on_error(max_retries=5, base_delay=3)
@@ -100,28 +100,28 @@ class OpenAICompatibleGenerator(ImageGeneratorBase):
         **kwargs
     ) -> bytes:
         """
-        生成图片
+        Generate image
 
         Args:
-            prompt: 提示词
-            size: 图片尺寸 (如 "1024x1024", "2048x2048", "4096x4096")
-            model: 模型名称
-            quality: 质量 ("standard" 或 "hd")
-            **kwargs: 其他参数
+            prompt: Prompt text
+            size: Image size (e.g. "1024x1024", "2048x2048", "4096x4096")
+            model: Model name
+            quality: Quality ("standard" or "hd")
+            **kwargs: Other parameters
 
         Returns:
-            图片二进制数据
+            Image binary data
         """
         if model is None:
             model = self.default_model
 
-        logger.info(f"OpenAI 兼容 API 生成图片: model={model}, size={size}, endpoint={self.endpoint_type}")
+        logger.info(f"OpenAI Compatible API generating image: model={model}, size={size}, endpoint={self.endpoint_type}")
 
-        # 根据端点路径决定使用哪种 API 方式
+        # Decide which API method based on endpoint path
         if 'chat' in self.endpoint_type or 'completions' in self.endpoint_type:
             return self._generate_via_chat_api(prompt, size, model)
         else:
-            # 默认使用 images API
+            # Default to images API
             return self._generate_via_images_api(prompt, size, model, quality)
 
     def _generate_via_images_api(
@@ -131,11 +131,11 @@ class OpenAICompatibleGenerator(ImageGeneratorBase):
         model: str,
         quality: str
     ) -> bytes:
-        """通过 images API 端点生成"""
-        # 确保端点以 / 开头
+        """Generate via images API endpoint"""
+        # Ensure endpoint starts with /
         endpoint = self.endpoint_type if self.endpoint_type.startswith('/') else '/' + self.endpoint_type
         url = f"{self.base_url}{endpoint}"
-        logger.debug(f"  发送请求到: {url}")
+        logger.debug(f"  Sending request to: {url}")
 
         headers = {
             "Authorization": f"Bearer {self.api_key}",
@@ -147,10 +147,10 @@ class OpenAICompatibleGenerator(ImageGeneratorBase):
             "prompt": prompt,
             "n": 1,
             "size": size,
-            "response_format": "b64_json"  # 使用base64格式更可靠
+            "response_format": "b64_json"  # Use base64 format for reliability
         }
 
-        # 如果模型支持quality参数
+        # If model supports quality parameter
         if quality and model.startswith('dall-e'):
             payload["quality"] = quality
 
@@ -158,64 +158,64 @@ class OpenAICompatibleGenerator(ImageGeneratorBase):
 
         if response.status_code != 200:
             error_detail = response.text[:500]
-            logger.error(f"OpenAI Images API 请求失败: status={response.status_code}, error={error_detail}")
+            logger.error(f"OpenAI Images API request failed: status={response.status_code}, error={error_detail}")
             raise Exception(
-                f"OpenAI Images API 请求失败 (状态码: {response.status_code})\n"
-                f"错误详情: {error_detail}\n"
-                f"请求地址: {url}\n"
-                f"模型: {model}\n"
-                "可能原因：\n"
-                "1. API密钥无效或已过期\n"
-                "2. 模型名称不正确或无权访问\n"
-                "3. 请求参数不符合要求\n"
-                "4. API配额已用尽\n"
-                "5. Base URL配置错误\n"
-                "建议：检查API密钥、base_url和模型名称配置"
+                f"OpenAI Images API request failed (status: {response.status_code})\n"
+                f"Error details: {error_detail}\n"
+                f"Request URL: {url}\n"
+                f"Model: {model}\n"
+                "Possible causes:\n"
+                "1. Invalid or expired API key\n"
+                "2. Incorrect model name or no access\n"
+                "3. Invalid request parameters\n"
+                "4. API quota exhausted\n"
+                "5. Incorrect Base URL configuration\n"
+                "Suggestion: Check API key, base_url and model name configuration"
             )
 
         result = response.json()
-        logger.debug(f"  API 响应: data 长度={len(result.get('data', []))}")
+        logger.debug(f"  API response: data length={len(result.get('data', []))}")
 
         if "data" not in result or len(result["data"]) == 0:
-            logger.error(f"API 未返回图片数据: {str(result)[:200]}")
+            logger.error(f"API returned no image data: {str(result)[:200]}")
             raise ValueError(
-                "OpenAI API 未返回图片数据。\n"
-                f"响应内容: {str(result)[:500]}\n"
-                "可能原因：\n"
-                "1. 提示词被安全过滤拦截\n"
-                "2. 模型不支持图片生成\n"
-                "3. 请求格式不正确\n"
-                "建议：修改提示词或检查模型配置"
+                "OpenAI API returned no image data.\n"
+                f"Response: {str(result)[:500]}\n"
+                "Possible causes:\n"
+                "1. Prompt blocked by safety filter\n"
+                "2. Model does not support image generation\n"
+                "3. Invalid request format\n"
+                "Suggestion: Modify prompt or check model configuration"
             )
 
         image_data = result["data"][0]
 
-        # 处理base64格式
+        # Handle base64 format
         if "b64_json" in image_data:
             img_bytes = base64.b64decode(image_data["b64_json"])
-            logger.info(f"✅ OpenAI Images API 图片生成成功: {len(img_bytes)} bytes")
+            logger.info(f"[OK] OpenAI Images API image generated: {len(img_bytes)} bytes")
             return img_bytes
 
-        # 处理URL格式
+        # Handle URL format
         elif "url" in image_data:
-            logger.debug(f"  下载图片 URL...")
+            logger.debug(f"  Downloading image from URL...")
             img_response = requests.get(image_data["url"], timeout=60)
             if img_response.status_code == 200:
-                logger.info(f"✅ OpenAI Images API 图片生成成功: {len(img_response.content)} bytes")
+                logger.info(f"[OK] OpenAI Images API image generated: {len(img_response.content)} bytes")
                 return img_response.content
             else:
-                logger.error(f"下载图片失败: {img_response.status_code}")
-                raise Exception(f"下载图片失败: {img_response.status_code}")
+                logger.error(f"Download image failed: {img_response.status_code}")
+                raise Exception(f"Download image failed: {img_response.status_code}")
 
         else:
-            logger.error(f"无法从响应中提取图片数据: {str(image_data)[:200]}")
+            logger.error(f"Cannot extract image data from response: {str(image_data)[:200]}")
             raise ValueError(
-                "无法从API响应中提取图片数据。\n"
-                f"响应数据: {str(image_data)[:500]}\n"
-                "可能原因：\n"
-                "1. 响应格式不包含 b64_json 或 url 字段\n"
-                "2. response_format 参数未生效\n"
-                "建议：检查API文档确认图片返回格式"
+                "Cannot extract image data from API response.\n"
+                f"Response data: {str(image_data)[:500]}\n"
+                "Possible causes:\n"
+                "1. Response format does not contain b64_json or url field\n"
+                "2. response_format parameter not effective\n"
+                "Suggestion: Check API documentation for image return format"
             )
 
     def _generate_via_chat_api(
@@ -225,17 +225,17 @@ class OpenAICompatibleGenerator(ImageGeneratorBase):
         model: str
     ) -> bytes:
         """
-        通过 chat/completions 端点生成图片
+        Generate image via chat/completions endpoint
 
-        支持多种返回格式：
-        1. Markdown 图片链接: ![xxx](url) - 即梦、部分中转站使用
+        Supports multiple return formats:
+        1. Markdown image link: ![xxx](url) - used by some providers
         2. Base64 data URL: data:image/xxx;base64,xxx
-        3. 纯图片 URL
+        3. Plain image URL
         """
-        # 确保端点以 / 开头
+        # Ensure endpoint starts with /
         endpoint = self.endpoint_type if self.endpoint_type.startswith('/') else '/' + self.endpoint_type
         url = f"{self.base_url}{endpoint}"
-        logger.info(f"Chat API 生成图片: {url}, model={model}")
+        logger.info(f"Chat API generating image: {url}, model={model}")
 
         headers = {
             "Authorization": f"Bearer {self.api_key}",
@@ -260,102 +260,102 @@ class OpenAICompatibleGenerator(ImageGeneratorBase):
             error_detail = response.text[:500]
             status_code = response.status_code
 
-            # 详细的错误信息
+            # Detailed error messages
             if status_code == 401:
                 raise Exception(
-                    "❌ API Key 认证失败\n\n"
-                    "【可能原因】\n"
-                    "1. API Key 无效或已过期\n"
-                    "2. API Key 格式错误\n\n"
-                    "【解决方案】\n"
-                    "在系统设置页面检查 API Key 是否正确"
+                    "[FAIL] API Key authentication failed\n\n"
+                    "[Possible causes]\n"
+                    "1. Invalid or expired API Key\n"
+                    "2. API Key format error\n\n"
+                    "[Solution]\n"
+                    "Check API Key in system settings"
                 )
             elif status_code == 429:
                 raise Exception(
-                    "⏳ API 配额或速率限制\n\n"
-                    "【解决方案】\n"
-                    "1. 稍后再试\n"
-                    "2. 检查 API 配额使用情况"
+                    "[WAIT] API quota or rate limit\n\n"
+                    "[Solution]\n"
+                    "1. Try again later\n"
+                    "2. Check API quota usage"
                 )
             else:
                 raise Exception(
-                    f"❌ Chat API 请求失败 (状态码: {status_code})\n\n"
-                    f"【错误详情】\n{error_detail[:300]}\n\n"
-                    f"【请求地址】{url}\n"
-                    f"【模型】{model}"
+                    f"[FAIL] Chat API request failed (status: {status_code})\n\n"
+                    f"[Error details]\n{error_detail[:300]}\n\n"
+                    f"[Request URL] {url}\n"
+                    f"[Model] {model}"
                 )
 
         result = response.json()
-        logger.debug(f"Chat API 响应: {str(result)[:500]}")
+        logger.debug(f"Chat API response: {str(result)[:500]}")
 
-        # 解析响应
+        # Parse response
         if "choices" in result and len(result["choices"]) > 0:
             choice = result["choices"][0]
             if "message" in choice and "content" in choice["message"]:
                 content = choice["message"]["content"]
 
                 if isinstance(content, str):
-                    # 1. 尝试解析 Markdown 图片链接: ![xxx](url)
+                    # 1. Try to parse Markdown image link: ![xxx](url)
                     image_urls = self._extract_markdown_image_urls(content)
                     if image_urls:
-                        # 下载第一张图片
-                        logger.info(f"从 Markdown 提取到 {len(image_urls)} 张图片，下载第一张...")
+                        # Download first image
+                        logger.info(f"Extracted {len(image_urls)} images from Markdown, downloading first one...")
                         return self._download_image(image_urls[0])
 
-                    # 2. 尝试解析 Base64 data URL
+                    # 2. Try to parse Base64 data URL
                     if content.startswith("data:image"):
-                        logger.info("检测到 Base64 图片数据")
+                        logger.info("Detected Base64 image data")
                         base64_data = content.split(",")[1]
                         return base64.b64decode(base64_data)
 
-                    # 3. 尝试作为纯 URL 处理
+                    # 3. Try as plain URL
                     if content.startswith("http://") or content.startswith("https://"):
-                        logger.info("检测到图片 URL")
+                        logger.info("Detected image URL")
                         return self._download_image(content.strip())
 
         raise ValueError(
-            "❌ 无法从 Chat API 响应中提取图片数据\n\n"
-            f"【响应内容】\n{str(result)[:500]}\n\n"
-            "【可能原因】\n"
-            "1. 该模型不支持图片生成\n"
-            "2. 响应格式与预期不符\n"
-            "3. 提示词被安全过滤\n\n"
-            "【解决方案】\n"
-            "1. 确认模型名称正确（如 Nano-Banana-Pro）\n"
-            "2. 修改提示词后重试"
+            "[FAIL] Cannot extract image data from Chat API response\n\n"
+            f"[Response]\n{str(result)[:500]}\n\n"
+            "[Possible causes]\n"
+            "1. This model does not support image generation\n"
+            "2. Response format does not match expected\n"
+            "3. Prompt blocked by safety filter\n\n"
+            "[Solution]\n"
+            "1. Confirm model name is correct\n"
+            "2. Modify prompt and retry"
         )
 
     def _extract_markdown_image_urls(self, content: str) -> list:
         """
-        从 Markdown 内容中提取图片 URL
+        Extract image URLs from Markdown content
 
-        支持格式: ![alt text](url) 或 ![](url)
+        Supports format: ![alt text](url) or ![](url)
         """
         import re
-        # 匹配 ![任意文字](url) 格式
+        # Match ![any text](url) format
         pattern = r'!\[.*?\]\((https?://[^\s\)]+)\)'
         urls = re.findall(pattern, content)
-        logger.debug(f"从 Markdown 提取到 {len(urls)} 个图片 URL")
+        logger.debug(f"Extracted {len(urls)} image URLs from Markdown")
         return urls
 
     def _download_image(self, url: str) -> bytes:
-        """下载图片并返回二进制数据"""
-        logger.info(f"下载图片: {url[:100]}...")
+        """Download image and return binary data"""
+        logger.info(f"Downloading image: {url[:100]}...")
         try:
             response = requests.get(url, timeout=60)
             if response.status_code == 200:
-                logger.info(f"✅ 图片下载成功: {len(response.content)} bytes")
+                logger.info(f"[OK] Image downloaded: {len(response.content)} bytes")
                 return response.content
             else:
-                raise Exception(f"下载图片失败: HTTP {response.status_code}")
+                raise Exception(f"Download image failed: HTTP {response.status_code}")
         except requests.exceptions.Timeout:
-            raise Exception("❌ 下载图片超时，请重试")
+            raise Exception("[FAIL] Download image timeout, please retry")
         except Exception as e:
-            raise Exception(f"❌ 下载图片失败: {str(e)}")
+            raise Exception(f"[FAIL] Download image failed: {str(e)}")
 
     def get_supported_sizes(self) -> list:
-        """获取支持的图片尺寸"""
-        # 默认OpenAI支持的尺寸
+        """Get supported image sizes"""
+        # Default OpenAI supported sizes
         return self.config.get('supported_sizes', [
             "1024x1024",
             "1792x1024",

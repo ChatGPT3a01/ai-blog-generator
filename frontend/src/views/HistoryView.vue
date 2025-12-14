@@ -135,7 +135,7 @@ import {
 } from '../api'
 import { useGeneratorStore } from '../stores/generator'
 
-// 引入组件
+// 引入元件
 import StatsOverview from '../components/history/StatsOverview.vue'
 import GalleryCard from '../components/history/GalleryCard.vue'
 import ImageGalleryModal from '../components/history/ImageGalleryModal.vue'
@@ -145,7 +145,7 @@ const router = useRouter()
 const route = useRoute()
 const store = useGeneratorStore()
 
-// 数据状态
+// 資料狀態
 const records = ref<HistoryRecord[]>([])
 const loading = ref(false)
 const stats = ref<any>(null)
@@ -154,7 +154,7 @@ const searchKeyword = ref('')
 const currentPage = ref(1)
 const totalPages = ref(1)
 
-// 查看器状态
+// 查看器狀態
 const viewingRecord = ref<any>(null)
 const regeneratingImages = ref<Set<number>>(new Set())
 const showOutlineModal = ref(false)

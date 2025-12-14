@@ -1,5 +1,5 @@
 <template>
-  <!-- 统计概览卡片 -->
+  <!-- 統計概覽卡片 -->
   <div class="stats-overview" v-if="stats">
     <div class="stat-box">
       <div class="stat-icon-circle blue">
@@ -12,7 +12,7 @@
         </svg>
       </div>
       <div class="stat-content">
-        <h4>总作品数</h4>
+        <h4>總作品數</h4>
         <div class="number">{{ stats.total || 0 }}</div>
       </div>
     </div>
@@ -47,15 +47,15 @@
 
 <script setup lang="ts">
 /**
- * 历史记录统计概览组件
+ * 歷史記錄統計概覽元件
  *
- * 显示三个统计卡片：
- * - 总作品数
- * - 已完成数量
- * - 草稿箱数量
+ * 顯示三個統計卡片：
+ * - 總作品數
+ * - 已完成數量
+ * - 草稿箱數量
  */
 
-// 定义 Props
+// 定義 Props
 interface Stats {
   total?: number
   by_status?: {
@@ -71,7 +71,7 @@ defineProps<{
 </script>
 
 <style scoped>
-/* 统计概览容器 */
+/* 統計概覽容器 */
 .stats-overview {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -79,7 +79,7 @@ defineProps<{
   margin-bottom: 32px;
 }
 
-/* 单个统计卡片 */
+/* 單個統計卡片 */
 .stat-box {
   display: flex;
   align-items: center;
@@ -96,7 +96,7 @@ defineProps<{
   transform: translateY(-2px);
 }
 
-/* 图标圆圈 */
+/* 圖標圓圈 */
 .stat-icon-circle {
   width: 48px;
   height: 48px;
@@ -122,7 +122,7 @@ defineProps<{
   color: #f97316;
 }
 
-/* 统计内容 */
+/* 統計內容 */
 .stat-content h4 {
   font-size: 13px;
   font-weight: 500;
@@ -137,7 +137,7 @@ defineProps<{
   line-height: 1;
 }
 
-/* 响应式布局 */
+/* 響應式佈局 */
 @media (max-width: 768px) {
   .stats-overview {
     grid-template-columns: 1fr;

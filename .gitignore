@@ -59,6 +59,22 @@ history/*
 .gemini/
 /image_providers.yaml
 /text_providers.yaml
+/upload_config.yaml
+blogger_credentials.json
+
+# Debug files
+blogger_debug.txt
+*_debug.txt
+
+# Windows special files
+nul
+
+# Package lock files (root level)
+/package-lock.json
+
+# Data directory
+data/
+tasks/
 
 # Logs
 *.log
