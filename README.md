@@ -68,8 +68,8 @@
 ### 步驟 1：下載專案
 
 ```bash
-git clone https://github.com/ChatGPT3a01/ai-blog-generator.git
-cd ai-blog-generator
+git clone https://github.com/ChatGPT3a01/AI-Blog-Generator.git
+cd AI-Blog-Generator
 ```
 
 ### 步驟 2：設定 API 金鑰
