@@ -1,0 +1,10 @@
+# AI 圖文生成器 Python 相依套件
+# 建議使用 uv sync 安裝，或使用 pip install -r requirements.txt
+
+flask>=3.0.0
+flask-cors>=4.0.0
+python-dotenv>=1.0.0
+google-genai>=1.0.0
+pyyaml>=6.0.0
+requests>=2.31.0
+pillow>=12.0.0

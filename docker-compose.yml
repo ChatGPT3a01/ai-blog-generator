@@ -1,7 +1,8 @@
 services:
-  redink:
-    image: histonemax/redink:latest
-    container_name: redink
+  ai-blog-generator:
+    build: .
+    image: ai-blog-generator:latest
+    container_name: ai-blog-generator
     ports:
       - "12398:12398"
     volumes:
