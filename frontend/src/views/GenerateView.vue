@@ -68,13 +68,21 @@
           <div v-else-if="image.status === 'error'" class="image-placeholder error-placeholder">
             <div class="error-icon">!</div>
             <div class="status-text">生成失敗</div>
-            <button
-              class="retry-btn"
-              @click="retrySingleImage(image.index)"
-              :disabled="isRetrying"
-            >
-              點擊重試
-            </button>
+            <div class="error-actions">
+              <button
+                class="retry-btn"
+                @click="retrySingleImage(image.index)"
+                :disabled="isRetrying"
+              >
+                重試生成
+              </button>
+              <button
+                class="alt-btn"
+                @click="openFallbackModal(image.index)"
+              >
+                替代圖片
+              </button>
+            </div>
           </div>
 
           <!-- 等待中狀態 -->
@@ -92,6 +100,16 @@
         </div>
       </div>
     </div>
+
+    <!-- 備用圖片選擇彈窗 -->
+    <FallbackImageModal
+      :visible="showFallbackModal"
+      :page-index="fallbackPageIndex"
+      :task-id="store.taskId || ''"
+      :suggested-keyword="getSuggestedKeyword(fallbackPageIndex)"
+      @close="showFallbackModal = false"
+      @select="handleFallbackSelect"
+    />
   </div>
 </template>
 
@@ -100,12 +118,17 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGeneratorStore } from '../stores/generator'
 import { generateImagesPost, regenerateImage as apiRegenerateImage, retryFailedImages as apiRetryFailed, createHistory, updateHistory, getImageUrl } from '../api'
+import FallbackImageModal from '../components/FallbackImageModal.vue'
 
 const router = useRouter()
 const store = useGeneratorStore()
 
 const error = ref('')
 const isRetrying = ref(false)
+
+// 備用圖片彈窗狀態
+const showFallbackModal = ref(false)
+const fallbackPageIndex = ref(0)
 
 const isGenerating = computed(() => store.progress.status === 'generating')
 
@@ -161,6 +184,46 @@ function retrySingleImage(index: number) {
 // 重新生成圖片（成功的也可以重新生成，立即返回不等待）
 function regenerateImage(index: number) {
   retrySingleImage(index)
+}
+
+// 開啟備用圖片彈窗
+function openFallbackModal(index: number) {
+  fallbackPageIndex.value = index
+  showFallbackModal.value = true
+}
+
+// 取得建議的搜尋關鍵字（根據該頁的內容）
+function getSuggestedKeyword(index: number): string {
+  const page = store.outline.pages.find(p => p.index === index)
+  if (!page) return store.topic || ''
+
+  // 從頁面內容中提取關鍵字（取前 30 個字）
+  const content = page.content || ''
+  const firstLine = content.split('\n')[0] || ''
+  return firstLine.slice(0, 30) || store.topic || ''
+}
+
+// 處理備用圖片選擇結果
+function handleFallbackSelect(data: { type: 'unsplash' | 'upload' | 'skip', imageUrl?: string }) {
+  const index = fallbackPageIndex.value
+
+  if (data.type === 'skip') {
+    // 標記為跳過狀態
+    store.updateProgress(index, 'done', undefined)
+  } else if (data.imageUrl) {
+    // 使用選擇的圖片
+    store.updateImage(index, data.imageUrl)
+  }
+
+  showFallbackModal.value = false
+
+  // 檢查是否所有圖片都已完成
+  const allDone = store.images.every(img => img.status === 'done')
+  if (allDone && !isGenerating.value) {
+    setTimeout(() => {
+      router.push('/result')
+    }, 500)
+  }
 }
 
 // 批量重試所有失敗的圖片
@@ -400,11 +463,15 @@ onMounted(async () => {
   color: var(--text-sub);
 }
 
-.retry-btn {
+.error-actions {
+  display: flex;
+  gap: 8px;
   margin-top: 8px;
-  padding: 6px 16px;
-  background: var(--primary);
-  color: white;
+}
+
+.retry-btn,
+.alt-btn {
+  padding: 6px 12px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -412,12 +479,30 @@ onMounted(async () => {
   transition: all 0.2s;
 }
 
-.retry-btn:hover {
+.retry-btn {
+  background: var(--primary);
+  color: white;
+}
+
+.alt-btn {
+  background: #f0f0f0;
+  color: #666;
+  border: 1px solid #ddd;
+}
+
+.retry-btn:hover,
+.alt-btn:hover {
   opacity: 0.9;
   transform: translateY(-1px);
 }
 
-.retry-btn:disabled {
+.alt-btn:hover {
+  background: #e8e8e8;
+  color: #333;
+}
+
+.retry-btn:disabled,
+.alt-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;

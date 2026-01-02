@@ -9,6 +9,11 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
+  build: {
+    sourcemap: false,
+    minify: 'esbuild',
+    chunkSizeWarningLimit: 1000
+  },
   server: {
     port: 5173,
     proxy: {

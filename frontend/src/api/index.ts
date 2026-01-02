@@ -575,3 +575,77 @@ export async function batchUploadToImgBB(images: {
   })
   return response.data
 }
+
+// ==================== Unsplash 備用圖庫 API ====================
+
+export interface UnsplashPhoto {
+  id: string
+  thumb: string
+  small: string
+  regular: string
+  full: string
+  alt: string
+  photographer: string
+  photographer_url: string
+}
+
+// 取得 Unsplash 設定狀態
+export async function getUnsplashConfig(): Promise<{
+  success: boolean
+  has_api_key?: boolean
+  error?: string
+}> {
+  const response = await axios.get(`${API_BASE_URL}/unsplash/config`)
+  return response.data
+}
+
+// 更新 Unsplash API Key
+export async function updateUnsplashConfig(apiKey: string): Promise<{
+  success: boolean
+  message?: string
+  error?: string
+}> {
+  const response = await axios.post(`${API_BASE_URL}/unsplash/config`, {
+    api_key: apiKey
+  })
+  return response.data
+}
+
+// 搜尋 Unsplash 圖片
+export async function searchUnsplashPhotos(params: {
+  query: string
+  perPage?: number
+  orientation?: 'landscape' | 'portrait' | 'squarish'
+}): Promise<{
+  success: boolean
+  photos?: UnsplashPhoto[]
+  total?: number
+  error?: string
+}> {
+  const response = await axios.post(`${API_BASE_URL}/unsplash/search`, {
+    query: params.query,
+    per_page: params.perPage || 8,
+    orientation: params.orientation || 'landscape'
+  })
+  return response.data
+}
+
+// 下載 Unsplash 圖片到任務目錄
+export async function downloadUnsplashPhoto(params: {
+  photoUrl: string
+  taskId: string
+  index: number
+  photoId: string
+}): Promise<{
+  success: boolean
+  image_url?: string
+  error?: string
+}> {
+  const response = await axios.post(`${API_BASE_URL}/unsplash/download`, {
+    photo_url: params.photoUrl,
+    task_id: params.taskId,
+    index: params.index,
+    photo_id: params.photoId
+  })
+  return response.data
+}

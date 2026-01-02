@@ -105,6 +105,57 @@
           </div>
         </div>
       </div>
+
+      <!-- Unsplash 備用圖庫設定 -->
+      <div class="card">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Unsplash 備用圖庫</h2>
+            <p class="section-desc">當 AI 圖片生成失敗時，可從 Unsplash 圖庫選擇替代圖片</p>
+          </div>
+        </div>
+
+        <div class="unsplash-config">
+          <div class="form-group">
+            <label class="form-label">Unsplash Access Key</label>
+            <div style="display: flex; gap: 12px;">
+              <input
+                type="password"
+                v-model="unsplashApiKey"
+                placeholder="請輸入 Unsplash Access Key"
+                class="form-input"
+                style="flex: 1;"
+              />
+              <button
+                class="btn btn-primary"
+                @click="saveUnsplashConfig"
+                :disabled="savingUnsplash"
+              >
+                {{ savingUnsplash ? '儲存中...' : '儲存' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- 教學說明 -->
+          <div class="api-guide">
+            <h4>如何取得 Unsplash Access Key？</h4>
+            <ol>
+              <li>前往 <a href="https://unsplash.com/developers" target="_blank">Unsplash Developers</a> 網站</li>
+              <li>註冊或登入 Unsplash 帳號</li>
+              <li>點擊「Your apps」→「New Application」</li>
+              <li>填寫應用程式名稱和說明（可隨意填寫）</li>
+              <li>勾選同意條款，建立應用程式</li>
+              <li>複製「Access Key」（不是 Secret Key）</li>
+              <li>將 Access Key 貼到上方輸入框並儲存</li>
+            </ol>
+            <p class="note">Unsplash API 免費版每月可搜尋 50 次，足夠一般使用。</p>
+          </div>
+
+          <div v-if="hasUnsplashKey" class="status-success">
+            已設定 Access Key
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- 文字供應商彈窗 -->
@@ -146,7 +197,7 @@ import {
   textTypeOptions,
   imageTypeOptions
 } from '../composables/useProviderForm'
-import { getUploadConfig, updateUploadConfig } from '../api'
+import { getUploadConfig, updateUploadConfig, getUnsplashConfig, updateUnsplashConfig } from '../api'
 
 /**
  * 系統設定頁面
@@ -162,6 +213,11 @@ import { getUploadConfig, updateUploadConfig } from '../api'
 const imgbbApiKey = ref('')
 const hasImgBBKey = ref(false)
 const savingImgBB = ref(false)
+
+// Unsplash 配置狀態
+const unsplashApiKey = ref('')
+const hasUnsplashKey = ref(false)
+const savingUnsplash = ref(false)
 
 // 載入 ImgBB 配置
 async function loadImgBBConfig() {
@@ -194,6 +250,40 @@ async function saveImgBBConfig() {
     alert('儲存失敗: ' + e.message)
   } finally {
     savingImgBB.value = false
+  }
+}
+
+// 載入 Unsplash 配置
+async function loadUnsplashConfig() {
+  try {
+    const result = await getUnsplashConfig()
+    hasUnsplashKey.value = result.has_api_key || false
+  } catch (e) {
+    console.error('載入 Unsplash 配置失敗:', e)
+  }
+}
+
+// 儲存 Unsplash 配置
+async function saveUnsplashConfig() {
+  if (!unsplashApiKey.value.trim()) {
+    alert('請輸入 Access Key')
+    return
+  }
+
+  savingUnsplash.value = true
+  try {
+    const result = await updateUnsplashConfig(unsplashApiKey.value.trim())
+    if (result.success) {
+      hasUnsplashKey.value = true
+      unsplashApiKey.value = ''
+      alert('Unsplash Access Key 已儲存')
+    } else {
+      alert('儲存失敗: ' + (result.error || '未知錯誤'))
+    }
+  } catch (e: any) {
+    alert('儲存失敗: ' + e.message)
+  } finally {
+    savingUnsplash.value = false
   }
 }
 
@@ -247,6 +337,7 @@ const {
 onMounted(() => {
   loadConfig()
   loadImgBBConfig()
+  loadUnsplashConfig()
 })
 </script>
 
@@ -340,5 +431,54 @@ onMounted(() => {
   color: #16a34a;
   border-radius: 6px;
   font-size: 13px;
+}
+
+/* Unsplash 配置區 */
+.unsplash-config {
+  padding-top: 8px;
+}
+
+/* API 教學說明 */
+.api-guide {
+  margin-top: 16px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 3px solid var(--primary);
+}
+
+.api-guide h4 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.api-guide ol {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+  color: #555;
+  line-height: 1.8;
+}
+
+.api-guide li {
+  margin-bottom: 4px;
+}
+
+.api-guide a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.api-guide a:hover {
+  text-decoration: underline;
+}
+
+.api-guide .note {
+  margin: 12px 0 0 0;
+  font-size: 12px;
+  color: #888;
+  font-style: italic;
 }
 </style>

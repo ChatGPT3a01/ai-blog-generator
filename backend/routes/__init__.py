@@ -8,6 +8,7 @@ API 路由模組
 - config_routes: 設定管理 API
 - blogger_routes: Blogger 發布 API
 - upload_routes: 圖片上傳 API
+- unsplash_routes: Unsplash 備用圖庫 API
 
 所有路由都註冊到 /api 前綴下
 """
@@ -24,6 +25,7 @@ def create_api_blueprint():
     from .export_routes import create_export_blueprint
     from .blogger_routes import create_blogger_blueprint
     from .upload_routes import create_upload_blueprint
+    from .unsplash_routes import create_unsplash_blueprint
 
     api_bp = Blueprint('api', __name__, url_prefix='/api')
 
@@ -34,6 +36,7 @@ def create_api_blueprint():
     api_bp.register_blueprint(create_export_blueprint())
     api_bp.register_blueprint(create_blogger_blueprint())
     api_bp.register_blueprint(create_upload_blueprint(), url_prefix='/upload')
+    api_bp.register_blueprint(create_unsplash_blueprint(), url_prefix='/unsplash')
 
     return api_bp
 

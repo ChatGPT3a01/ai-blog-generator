@@ -1,5 +1,8 @@
 <template>
   <div id="app">
+    <!-- 滑鼠粒子特效 -->
+    <ParticleEffect />
+
     <!-- 側邊欄 Sidebar -->
     <aside class="layout-sidebar">
       <div class="logo-area">
@@ -113,6 +116,7 @@
 import { RouterView, RouterLink } from 'vue-router'
 import { onMounted, ref, computed } from 'vue'
 import { setupAutoSave } from './stores/generator'
+import ParticleEffect from './components/ParticleEffect.vue'
 
 // 預設音樂清單
 const musicPresets = [
