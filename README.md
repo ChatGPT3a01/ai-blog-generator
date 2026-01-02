@@ -131,6 +131,39 @@ http://localhost:8099
 3. 複製 API Key
 4. 回到系統設定 → 圖床設定 → 貼上 → 儲存
 
+### Blogger 授權（選填，發布文章需要）
+
+要發布文章到 Google Blogger，需要取得 OAuth Access Token：
+
+**步驟 1：開啟 OAuth Playground**
+- 前往 https://developers.google.com/oauthplayground/
+
+**步驟 2：啟用自訂憑證**
+- 點擊頁面**右上角齒輪圖示** ⚙️
+- 勾選 `Use your own OAuth credentials`
+
+**步驟 3：輸入授權範圍**
+- 在左側 Step 1 的「Input your own scopes」輸入框貼上：
+  ```
+  https://www.googleapis.com/auth/blogger
+  ```
+- **按 Enter 確認**（很重要！）
+- 確認下方出現已添加的 scope
+
+**步驟 4：授權**
+- 點擊藍色「Authorize APIs」按鈕
+- 選擇您的 Google 帳號
+- 允許授權
+
+**步驟 5：取得 Token**
+- 回到頁面後，在 Step 2 點擊「Exchange authorization code for tokens」
+- 複製「Access token」欄位的內容（以 `ya29.` 開頭）
+
+**步驟 6：設定**
+- 回到系統設定 → Blogger 設定 → 貼上 Access Token → 儲存
+
+> ⚠️ 注意：Access Token 有效期約 1 小時，過期後需重新取得
+
 ---
 
 ## 使用流程
