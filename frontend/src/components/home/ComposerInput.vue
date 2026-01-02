@@ -115,6 +115,7 @@ interface UploadedImage {
 
 // 文字風格定義
 const textStyles = [
+  // 基本風格
   { id: 'professional', name: '專業解析', icon: '📊', description: '條理清楚、重邏輯與事實，像深度教學文章' },
   { id: 'teacher', name: '教師引導', icon: '👨‍🏫', description: '一步一步帶讀者，有引導、有鋪陳' },
   { id: 'story', name: '故事敘述', icon: '📖', description: '從情境或事件切入，有轉折，結尾收斂觀點' },
@@ -122,7 +123,16 @@ const textStyles = [
   { id: 'tutorial', name: '實戰教學', icon: '🛠️', description: '步驟化、可照做，像實作教學文章' },
   { id: 'summary', name: '懶人包', icon: '📋', description: '條列重點、好掃讀、易收藏' },
   { id: 'social', name: '社群延伸', icon: '💬', description: '半口語、節奏感強，像與讀者對話' },
-  { id: 'brand', name: '品牌觀點', icon: '🎯', description: '有一致價值觀、穩定語氣，建立作者形象' }
+  { id: 'brand', name: '品牌觀點', icon: '🎯', description: '有一致價值觀、穩定語氣，建立作者形象' },
+  // 作家風格
+  { id: 'xuzhimo', name: '徐志摩', icon: '🌹', description: '浪漫抒情、文字唯美細膩，如詩如畫' },
+  { id: 'zhangailing', name: '張愛玲', icon: '🌙', description: '精煉老練、冷靜犀利，帶著蒼涼與世故' },
+  { id: 'yuguangzhong', name: '余光中', icon: '🎭', description: '優美典雅、意境悠遠，融合古典與現代' },
+  { id: 'sanmao', name: '三毛', icon: '🏜️', description: '率真自然、充滿生命力，流浪者的自由' },
+  { id: 'linqingxuan', name: '林清玄', icon: '🍃', description: '禪意淡然、哲理深邃，在平凡中見智慧' },
+  { id: 'baixianyong', name: '白先勇', icon: '🎎', description: '細膩深沉、情感含蓄，文字優雅精緻' },
+  { id: 'longyingtai', name: '龍應台', icon: '🔥', description: '犀利深刻、理性與感性兼具，有力量與溫度' },
+  { id: 'liuyong', name: '劉墉', icon: '☀️', description: '溫暖勵志、平易近人，用故事說道理' }
 ]
 
 // 選中的文字風格
