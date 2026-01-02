@@ -1,5 +1,5 @@
-# AI 圖文生成器 Python 相依套件
-# 建議使用 uv sync 安裝，或使用 pip install -r requirements.txt
+# AI Blog Generator - Python Dependencies
+# Install with: pip install -r requirements.txt
 
 flask>=3.0.0
 flask-cors>=4.0.0
