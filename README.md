@@ -108,13 +108,21 @@ http://localhost:8099
 
 當 AI 圖片生成失敗時，可使用 Unsplash 免費圖庫作為替代：
 
-1. 前往 https://unsplash.com/developers
-2. 註冊/登入帳號
-3. 點擊「Your apps」→「New Application」
-4. 填寫應用程式名稱（隨意）
-5. 勾選同意條款，建立應用程式
-6. 複製「Access Key」
-7. 回到系統設定 → Unsplash 備用圖庫 → 貼上 → 儲存
+**申請步驟：**
+
+| 步驟 | 網址 | 操作 |
+|:---:|------|------|
+| 1 | https://unsplash.com/developers | 點擊「Your apps」 |
+| 2 | https://unsplash.com/oauth/applications | 點擊「New Application」 |
+| 3 | 彈出視窗 | 勾選 4 個 API 使用條款 |
+| 4 | 彈出視窗 | 點擊「Accept terms」 |
+| 5 | 表單頁面 | 填寫應用名稱 & 說明 |
+| 6 | 表單頁面 | 點擊「Create application」 |
+| 7 | Gmail | 確認郵件驗證（如需要） |
+| 8 | 應用詳情頁面 | 複製「Access Key」 |
+
+**設定方式：**
+- 回到系統設定 → Unsplash 備用圖庫 → 貼上 Access Key → 儲存
 
 ### ImgBB 圖床（選填，發布到 Blogger 需要）
 

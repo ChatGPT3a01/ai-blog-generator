@@ -1,0 +1,3 @@
+unsplash:
+  access_key: YOUR_UNSPLASH_ACCESS_KEY_HERE
+  enabled: true

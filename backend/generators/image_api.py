@@ -128,12 +128,24 @@ class ImageApiGenerator(ImageGeneratorBase):
             "Content-Type": "application/json"
         }
 
+        # 將 aspect_ratio 轉換為 DALL-E 3 支援的 size 參數
+        # DALL-E 3 支援: 1024x1024, 1024x1792, 1792x1024
+        size = "1024x1024"  # 預設正方形
+        if aspect_ratio:
+            try:
+                w, h = map(int, aspect_ratio.split(':'))
+                if w > h:  # 橫式
+                    size = "1792x1024"
+                elif h > w:  # 直式
+                    size = "1024x1792"
+            except:
+                pass
+
         payload = {
             "model": model,
             "prompt": prompt,
             "response_format": "b64_json",
-            "aspect_ratio": aspect_ratio,
-            "image_size": self.image_size
+            "size": size
         }
 
         # 收集所有参考图片
@@ -143,8 +155,11 @@ class ImageApiGenerator(ImageGeneratorBase):
         if reference_image and reference_image not in all_reference_images:
             all_reference_images.append(reference_image)
 
-        # 如果有参考图片，添加到 image 数组
-        if all_reference_images:
+        # 檢查是否為 DALL-E 模型（不支援參考圖片）
+        is_dalle = 'dall-e' in model.lower() or 'dalle' in model.lower()
+
+        # 如果有参考图片且不是 DALL-E 模型，添加到 image 数组
+        if all_reference_images and not is_dalle:
             logger.debug(f"  添加 {len(all_reference_images)} 张参考图片")
             image_uris = []
             for idx, img_data in enumerate(all_reference_images):
@@ -167,6 +182,8 @@ class ImageApiGenerator(ImageGeneratorBase):
 3. 保持一致的画面质感
 4. 如果参考图中有人物或产品，可以适当融入"""
             payload["prompt"] = enhanced_prompt
+        elif all_reference_images and is_dalle:
+            logger.warning("DALL-E 模型不支援參考圖片功能，將忽略參考圖片")
 
         api_url = f"{self.base_url}{self.endpoint_type}"
         logger.debug(f"  发送请求到: {api_url}")
