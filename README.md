@@ -261,4 +261,4 @@ npm run build:normal
 
 ## 授權
 
-MIT License
+D:\自己架設AI_零基礎到大師\授權方式.txt
