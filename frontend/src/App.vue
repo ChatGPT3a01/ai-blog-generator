@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <!-- 滑鼠粒子特效 -->
-    <ParticleEffect />
+    <ParticleEffect v-if="showParticleEffect" />
 
     <!-- 側邊欄 Sidebar -->
     <aside class="layout-sidebar">
@@ -25,6 +25,19 @@
         </RouterLink>
       </nav>
       
+      <!-- 粒子特效開關 -->
+      <div class="particle-toggle-section">
+        <label class="toggle-label">
+          <input
+            type="checkbox"
+            v-model="showParticleEffect"
+            class="toggle-checkbox"
+          />
+          <span class="toggle-slider"></span>
+          <span class="toggle-text">粒子特效</span>
+        </label>
+      </div>
+
       <!-- 音樂播放器 -->
       <div class="music-player-section">
         <div class="music-header">
@@ -118,13 +131,17 @@ import { onMounted, ref, computed } from 'vue'
 import { setupAutoSave } from './stores/generator'
 import ParticleEffect from './components/ParticleEffect.vue'
 
+// 粒子特效開關
+const showParticleEffect = ref(true)
+
 // 預設音樂清單
 const musicPresets = [
   'https://youtu.be/xA95Wd---5g?list=RDxA95Wd---5g',
   'https://youtu.be/WQl1C3xBhKo?list=RDWQl1C3xBhKo',
   'https://youtu.be/Ib2osVLmjSU?list=RDIb2osVLmjSU',
   'https://youtu.be/nx9MB6lQ6tw?list=RDnx9MB6lQ6tw',
-  'https://youtu.be/Vwr_l5bUgUA?list=RDVwr_l5bUgUA'
+  'https://youtu.be/Vwr_l5bUgUA?list=RDVwr_l5bUgUA',
+  'https://youtu.be/e_d5g6VXm3k'
 ]
 
 const currentMusicIndex = ref(-1)

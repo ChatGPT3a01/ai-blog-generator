@@ -348,25 +348,29 @@ class GoogleGenAIGenerator(ImageGeneratorBase):
 
         # 初始化客户端
         logger.debug("初始化 Google GenAI 客户端...")
-        client_kwargs = {
-            "api_key": self.api_key,
-        }
 
         # 默认使用 Gemini API (vertexai=False)，因为大多数用户使用 Google AI Studio 的 API Key
         # Vertex AI 需要 OAuth2 认证，不支持 API Key
         self.is_vertexai = False
 
+        # 设置超时时间 (180秒，图片生成需要较长时间)
+        timeout_ms = 180000
+
         # 如果有 base_url，则配置 http_options
         if self.config.get('base_url'):
             logger.debug(f"  使用自定义 base_url: {self.config['base_url']}")
-            client_kwargs["http_options"] = {
-                "base_url": self.config['base_url'],
-                "api_version": "v1beta"
-            }
+            http_options = types.HttpOptions(
+                base_url=self.config['base_url'],
+                api_version="v1beta",
+                timeout=timeout_ms
+            )
+        else:
+            http_options = types.HttpOptions(timeout=timeout_ms)
 
-        client_kwargs["vertexai"] = False
-
-        self.client = genai.Client(**client_kwargs)
+        self.client = genai.Client(
+            api_key=self.api_key,
+            http_options=http_options
+        )
 
         # 默认安全设置
         self.safety_settings = [
@@ -455,29 +459,43 @@ class GoogleGenAIGenerator(ImageGeneratorBase):
         if self.is_vertexai:
             image_config_kwargs["output_mime_type"] = "image/png"
 
-        generate_content_config = types.GenerateContentConfig(
-            temperature=temperature,
-            top_p=0.95,
-            max_output_tokens=32768,
-            response_modalities=["TEXT", "IMAGE"],
-            safety_settings=self.safety_settings,
-            image_config=types.ImageConfig(**image_config_kwargs),
+        # 构建配置参数
+        config_params = {
+            "temperature": temperature,
+            "top_p": 0.95,
+            "max_output_tokens": 32768,
+            "response_modalities": ["TEXT", "IMAGE"],
+            "safety_settings": self.safety_settings,
+            "image_config": types.ImageConfig(**image_config_kwargs),
+        }
+
+        # 添加 thinking_config 提升图片品质（思考链模式可能生成多张图）
+        config_params["thinking_config"] = types.ThinkingConfig(
+            include_thoughts=True
         )
 
-        image_data = None
-        logger.debug(f"  开始调用 API: model={model}")
-        for chunk in self.client.models.generate_content_stream(
+        generate_content_config = types.GenerateContentConfig(**config_params)
+
+        logger.debug(f"  开始调用 API: model={model}, 启用 thinking_config")
+
+        # 使用非流式调用，方便提取最后一张图片
+        response = self.client.models.generate_content(
             model=model,
             contents=contents,
             config=generate_content_config,
-        ):
-            if chunk.candidates and chunk.candidates[0].content and chunk.candidates[0].content.parts:
-                for part in chunk.candidates[0].content.parts:
-                    # 检查是否有图片数据
-                    if hasattr(part, 'inline_data') and part.inline_data:
-                        image_data = part.inline_data.data
-                        logger.debug(f"  收到图片数据: {len(image_data)} bytes")
-                        break
+        )
+
+        # 提取最后一张图片（thinking chain 中最后生成的通常品质最高）
+        last_image_data = None
+        if response.parts:
+            for i, part in enumerate(response.parts):
+                if hasattr(part, 'inline_data') and part.inline_data:
+                    last_image_data = part.inline_data.data
+                    logger.debug(f"  Part {i}: 找到图片数据 ({len(last_image_data)} bytes)")
+                elif hasattr(part, 'text') and part.text:
+                    logger.debug(f"  Part {i}: 文本 - {part.text[:100] if len(part.text) > 100 else part.text}")
+
+        image_data = last_image_data
 
         if not image_data:
             logger.error("API 返回为空，未生成图片")
